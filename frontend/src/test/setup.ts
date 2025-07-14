@@ -2,7 +2,7 @@
 import '@testing-library/jest-dom';
 
 // Mock fetch globally
-(globalThis as any).fetch = vi.fn();
+globalThis.fetch = vi.fn() as unknown as typeof fetch;
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -17,4 +17,4 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-}); 
+});
