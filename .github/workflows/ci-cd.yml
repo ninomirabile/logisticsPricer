@@ -163,7 +163,7 @@ jobs:
         # Test pricing endpoint
         curl -X POST http://localhost:3001/api/v1/pricing/calculate \
           -H "Content-Type: application/json" \
-          -d '{"origin":"US","destination":"IT","weight":100,"volume":0.5,"commodity":"electronics"}' \
+          -d '{"origin":"US","destination":"IT","weight":100,"volume":0.5,"transportType":"air"}' \
           -f || exit 1
         
         # Test tariffs endpoint
@@ -192,8 +192,7 @@ jobs:
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        args: --severity-threshold=high
-        working-directory: ./backend
+        args: test ./backend --severity-threshold=high
 
   # Docker Build & Push (for deployment)
   docker:
