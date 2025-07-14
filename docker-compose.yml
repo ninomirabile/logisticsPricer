@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    container_name: logisticspricer-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-admin123}
+      MONGO_INITDB_DATABASE: logisticspricer
+    volumes:
+      - mongodb_data:/data/db
+      - ./backend/scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    ports:
+      - "27017:27017"
+    networks:
+      - logisticspricer-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: logisticspricer-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3001
+      MONGODB_URI: mongodb://admin:${MONGO_ROOT_PASSWORD:-admin123}@mongodb:27017/logisticspricer?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      # Domain configuration
+      DOMAIN: ${DOMAIN:-localhost}
+      API_DOMAIN: ${API_DOMAIN:-localhost}
+      BASE_URL: ${BASE_URL:-http://localhost:3000}
+      API_URL: ${API_URL:-http://localhost:3001}
+    ports:
+      - "3001:3001"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - logisticspricer-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/v1/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: logisticspricer-frontend
+    restart: unless-stopped
+    environment:
+      # Frontend configuration
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+      VITE_APP_NAME: LogisticsPricer
+      VITE_BASE_URL: ${VITE_BASE_URL:-http://localhost:3000}
+      # Domain configuration
+      DOMAIN: ${DOMAIN:-localhost}
+      FRONTEND_DOMAIN: ${FRONTEND_DOMAIN:-localhost}
+      API_DOMAIN: ${API_DOMAIN:-localhost}
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - logisticspricer-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy (Optional - for production)
+  nginx:
+    image: nginx:alpine
+    container_name: logisticspricer-nginx
+    restart: unless-stopped
+    environment:
+      # Domain configuration
+      DOMAIN: ${DOMAIN:-localhost}
+      FRONTEND_DOMAIN: ${FRONTEND_DOMAIN:-localhost}
+      API_DOMAIN: ${API_DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - logisticspricer-network
+    profiles:
+      - production
+
+  # Redis Cache (Optional - for session management)
+  redis:
+    image: redis:7-alpine
+    container_name: logisticspricer-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - logisticspricer-network
+    profiles:
+      - production
+
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  logisticspricer-network:
+    driver: bridge 
