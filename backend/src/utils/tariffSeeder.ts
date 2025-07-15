@@ -100,6 +100,28 @@ const sampleTariffs = [
     effectiveDate: new Date('2020-01-01'),
     source: 'MANUAL',
     notes: 'Duty-free portable computers'
+  },
+  
+  // Add tariffs for US-IT test case
+  {
+    originCountry: 'US',
+    destinationCountry: 'IT',
+    hsCode: '8517.13.00',
+    baseRate: 0.0, // Duty-free
+    specialRate: 0,
+    effectiveDate: new Date('2020-01-01'),
+    source: 'MANUAL',
+    notes: 'Duty-free electronics from US to Italy'
+  },
+  {
+    originCountry: 'IT',
+    destinationCountry: 'US',
+    hsCode: '8517.13.00',
+    baseRate: 0.0, // Duty-free
+    specialRate: 0,
+    effectiveDate: new Date('2020-01-01'),
+    source: 'MANUAL',
+    notes: 'Duty-free electronics from Italy to US'
   }
 ];
 

@@ -29,6 +29,7 @@ function calculateBaseTransportCost(params: {
 // Calcolo dazi e tariffe
 async function calculateDutiesAndTariffs(params: {
   originCountry: string;
+  destinationCountry: string; // Aggiunto destinationCountry
   hsCode: string;
   productValue: number;
 }): Promise<{
@@ -42,12 +43,12 @@ async function calculateDutiesAndTariffs(params: {
     description: string;
   }>;
 }> {
-  const { originCountry, hsCode, productValue } = params;
+  const { originCountry, destinationCountry, hsCode, productValue } = params;
   
   // Get applicable tariff rates
   const tariffRates = await TariffRate.find({
     originCountry: originCountry.toUpperCase(),
-    // destinationCountry rimosso perché non più usato
+    destinationCountry: destinationCountry.toUpperCase(), // Aggiunto destinationCountry
     hsCode,
     isActive: true,
     effectiveDate: { $lte: new Date() },
@@ -191,6 +192,7 @@ export const calculatePrice = async (req: Request, res: Response): Promise<void>
     // Calculate duties and tariffs
     const dutiesAndTariffs = await calculateDutiesAndTariffs({
       originCountry: pricingRequest.origin.country,
+      destinationCountry: pricingRequest.destination.country, // Aggiunto destinationCountry
       hsCode: pricingRequest.cargo.hsCode,
       productValue: pricingRequest.cargo.value
     });
