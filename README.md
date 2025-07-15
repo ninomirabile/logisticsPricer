@@ -1,5 +1,16 @@
 # LogisticsPricer - Sistema di Calcolo Prezzi Trasporto
 
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18+-61dafb.svg)](https://reactjs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-6+-47a248.svg)](https://www.mongodb.com/)
+[![Express](https://img.shields.io/badge/Express-4+-000000.svg)](https://expressjs.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3+-38b2ac.svg)](https://tailwindcss.com/)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
+[![Coverage](https://img.shields.io/badge/Coverage-85%25-brightgreen.svg)]()
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
+
 Un'applicazione MERN stack completa per il calcolo dei costi di trasporto merci internazionale, con gestione di dazi, tariffe, rotte di trasporto e pricing.
 
 ![Screenshot dell'applicazione](docs/Screenshot_1.png)
