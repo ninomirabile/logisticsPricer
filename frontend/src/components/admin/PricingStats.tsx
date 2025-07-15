@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { pricingService, PricingStats } from '../../services/pricingService';
 
 export const PricingStatsComponent: React.FC = () => {
+  const { t } = useTranslation('admin');
   const [stats, setStats] = useState<PricingStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,7 @@ export const PricingStatsComponent: React.FC = () => {
   if (!stats) {
     return (
       <div className="text-center text-gray-500 py-8">
-        Nessuna statistica disponibile
+        {t('pricingStats.noStatsAvailable')}
       </div>
     );
   }
@@ -60,7 +62,7 @@ export const PricingStatsComponent: React.FC = () => {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-900">
-        Statistiche Pricing
+        {t('pricingStats.statsTitle')}
       </h2>
 
       {/* Overview Cards */}
@@ -75,7 +77,7 @@ export const PricingStatsComponent: React.FC = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Totale Richieste</p>
+              <p className="text-sm font-medium text-gray-500">{t('pricingStats.totalRequests')}</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.overview.totalRequests}</p>
             </div>
           </div>
@@ -91,7 +93,7 @@ export const PricingStatsComponent: React.FC = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">In Attesa</p>
+              <p className="text-sm font-medium text-gray-500">{t('pricingStats.pendingRequests')}</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.overview.pendingRequests}</p>
             </div>
           </div>
@@ -107,7 +109,7 @@ export const PricingStatsComponent: React.FC = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Calcolate</p>
+              <p className="text-sm font-medium text-gray-500">{t('pricingStats.calculatedRequests')}</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.overview.calculatedRequests}</p>
             </div>
           </div>
@@ -123,7 +125,7 @@ export const PricingStatsComponent: React.FC = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Scadute</p>
+              <p className="text-sm font-medium text-gray-500">{t('pricingStats.expiredRequests')}</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.overview.expiredRequests}</p>
             </div>
           </div>
@@ -132,7 +134,7 @@ export const PricingStatsComponent: React.FC = () => {
 
       {/* Transport Types Chart */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Distribuzione per Tipo di Trasporto</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('pricingStats.transportDistribution')}</h3>
         <div className="space-y-3">
           {stats.transportTypes.map((item) => (
             <div key={item.type} className="flex items-center justify-between">
@@ -157,7 +159,7 @@ export const PricingStatsComponent: React.FC = () => {
 
       {/* Top Countries */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Top Paesi di Origine</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('pricingStats.topCountries')}</h3>
         <div className="space-y-3">
           {stats.topCountries.slice(0, 5).map((item, index) => (
             <div key={item.country} className="flex items-center justify-between">
@@ -165,7 +167,7 @@ export const PricingStatsComponent: React.FC = () => {
                 <span className="text-sm font-medium text-gray-700 w-6">#{index + 1}</span>
                 <span className="text-sm text-gray-700">{item.country}</span>
               </div>
-              <span className="text-sm text-gray-500">{item.count} richieste</span>
+              <span className="text-sm text-gray-500">{item.count} {t('pricingStats.requests')}</span>
             </div>
           ))}
         </div>
@@ -173,19 +175,19 @@ export const PricingStatsComponent: React.FC = () => {
 
       {/* Averages */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Medie</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('pricingStats.averages')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-center">
-            <p className="text-sm text-gray-500">Valore Medio Merce</p>
+            <p className="text-sm text-gray-500">{t('pricingStats.avgCargoValue')}</p>
             <p className="text-2xl font-semibold text-gray-900">€{stats.averages.avgCargoValue.toLocaleString()}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm text-gray-500">Peso Medio</p>
-            <p className="text-2xl font-semibold text-gray-900">{stats.averages.avgWeight.toFixed(1)} kg</p>
+            <p className="text-sm text-gray-500">{t('pricingStats.avgWeight')}</p>
+            <p className="text-2xl font-semibold text-gray-900">{stats.averages.avgWeight.toFixed(1)} {t('pricingStats.kg')}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm text-gray-500">Volume Medio</p>
-            <p className="text-2xl font-semibold text-gray-900">{stats.averages.avgVolume.toFixed(2)} m³</p>
+            <p className="text-sm text-gray-500">{t('pricingStats.avgVolume')}</p>
+            <p className="text-2xl font-semibold text-gray-900">{stats.averages.avgVolume.toFixed(2)} {t('pricingStats.m3')}</p>
           </div>
         </div>
       </div>

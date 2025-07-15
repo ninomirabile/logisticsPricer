@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { shippingService, ShippingRouteStats } from '../../services/shippingService';
 
 export const ShippingRouteStatsComponent: React.FC = () => {
+  const { t } = useTranslation('admin');
   const [stats, setStats] = useState<ShippingRouteStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,7 @@ export const ShippingRouteStatsComponent: React.FC = () => {
   if (!stats) {
     return (
       <div className="text-center text-gray-500 py-8">
-        Nessuna statistica disponibile
+        {t('shippingRouteStats.noStatsAvailable')}
       </div>
     );
   }
@@ -60,7 +62,7 @@ export const ShippingRouteStatsComponent: React.FC = () => {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-900">
-        Statistiche Rotte di Trasporto
+        {t('shippingRouteStats.routeStatsTitle')}
       </h2>
 
       {/* Overview Cards */}
@@ -75,7 +77,7 @@ export const ShippingRouteStatsComponent: React.FC = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Totale Rotte</p>
+              <p className="text-sm font-medium text-gray-500">{t('shippingRouteStats.totalRoutes')}</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.overview.totalRoutes}</p>
             </div>
           </div>
@@ -91,7 +93,7 @@ export const ShippingRouteStatsComponent: React.FC = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Rotte Attive</p>
+              <p className="text-sm font-medium text-gray-500">{t('shippingRouteStats.activeRoutes')}</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.overview.activeRoutes}</p>
             </div>
           </div>
@@ -107,8 +109,8 @@ export const ShippingRouteStatsComponent: React.FC = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Tempo Medio Transito</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.overview.avgTransitTime.toFixed(1)} giorni</p>
+              <p className="text-sm font-medium text-gray-500">{t('shippingRouteStats.avgTransitTime')}</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.overview.avgTransitTime.toFixed(1)} {t('shippingRouteStats.days')}</p>
             </div>
           </div>
         </div>
@@ -123,8 +125,8 @@ export const ShippingRouteStatsComponent: React.FC = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Ritardo Medio Dogana</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.overview.avgCustomsDelay.toFixed(1)} giorni</p>
+              <p className="text-sm font-medium text-gray-500">{t('shippingRouteStats.avgCustomsDelay')}</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.overview.avgCustomsDelay.toFixed(1)} {t('shippingRouteStats.days')}</p>
             </div>
           </div>
         </div>
@@ -132,7 +134,7 @@ export const ShippingRouteStatsComponent: React.FC = () => {
 
       {/* Transport Types Chart */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Distribuzione per Tipo di Trasporto</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('shippingRouteStats.transportTypeDistribution')}</h3>
         <div className="space-y-3">
           {stats.transportTypes.map((item) => (
             <div key={item.type} className="flex items-center justify-between">
@@ -157,7 +159,7 @@ export const ShippingRouteStatsComponent: React.FC = () => {
 
       {/* Top Countries */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Top Paesi di Origine</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('shippingRouteStats.topOriginCountries')}</h3>
         <div className="space-y-3">
           {stats.topCountries.slice(0, 5).map((item, index) => (
             <div key={item.country} className="flex items-center justify-between">
@@ -165,7 +167,7 @@ export const ShippingRouteStatsComponent: React.FC = () => {
                 <span className="text-sm font-medium text-gray-700 w-6">#{index + 1}</span>
                 <span className="text-sm text-gray-700">{item.country}</span>
               </div>
-              <span className="text-sm text-gray-500">{item.count} rotte</span>
+              <span className="text-sm text-gray-500">{item.count} {t('shippingRouteStats.routes')}</span>
             </div>
           ))}
         </div>
@@ -173,21 +175,21 @@ export const ShippingRouteStatsComponent: React.FC = () => {
 
       {/* Performance Metrics */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Metriche di Performance</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('shippingRouteStats.performanceMetrics')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="text-md font-medium text-gray-700 mb-3">Efficienza Tempi</h4>
+            <h4 className="text-md font-medium text-gray-700 mb-3">{t('shippingRouteStats.efficiencyTime')}</h4>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Tempo medio transito</span>
-                <span className="text-sm font-medium">{stats.overview.avgTransitTime.toFixed(1)} giorni</span>
+                <span className="text-sm text-gray-600">{t('shippingRouteStats.avgTransitTime')}</span>
+                <span className="text-sm font-medium">{stats.overview.avgTransitTime.toFixed(1)} {t('shippingRouteStats.days')}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Ritardo medio dogana</span>
-                <span className="text-sm font-medium">{stats.overview.avgCustomsDelay.toFixed(1)} giorni</span>
+                <span className="text-sm text-gray-600">{t('shippingRouteStats.avgCustomsDelay')}</span>
+                <span className="text-sm font-medium">{stats.overview.avgCustomsDelay.toFixed(1)} {t('shippingRouteStats.days')}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Efficienza</span>
+                <span className="text-sm text-gray-600">{t('shippingRouteStats.efficiency')}</span>
                 <span className="text-sm font-medium">
                   {stats.overview.totalRoutes > 0 ? 
                     ((stats.overview.activeRoutes / stats.overview.totalRoutes) * 100).toFixed(1) : 0}%
@@ -196,18 +198,18 @@ export const ShippingRouteStatsComponent: React.FC = () => {
             </div>
           </div>
           <div>
-            <h4 className="text-md font-medium text-gray-700 mb-3">Copertura</h4>
+            <h4 className="text-md font-medium text-gray-700 mb-3">{t('shippingRouteStats.coverage')}</h4>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Rotte attive</span>
+                <span className="text-sm text-gray-600">{t('shippingRouteStats.activeRoutes')}</span>
                 <span className="text-sm font-medium">{stats.overview.activeRoutes}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Rotte inattive</span>
+                <span className="text-sm text-gray-600">{t('shippingRouteStats.inactiveRoutes')}</span>
                 <span className="text-sm font-medium">{stats.overview.totalRoutes - stats.overview.activeRoutes}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Tipi trasporto</span>
+                <span className="text-sm text-gray-600">{t('shippingRouteStats.transportTypes')}</span>
                 <span className="text-sm font-medium">{stats.transportTypes.length}</span>
               </div>
             </div>

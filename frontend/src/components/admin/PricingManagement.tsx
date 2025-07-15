@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { pricingService, PricingRequest, PricingFilters } from '../../services/pricingService';
 
 export const PricingManagement: React.FC = () => {
+  const { t } = useTranslation('admin');
   const [requests, setRequests] = useState<PricingRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -118,13 +120,13 @@ export const PricingManagement: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
-          Gestione Richieste di Pricing
+          {t('pricingManagement.title')}
         </h2>
         <button
           onClick={() => setShowForm(true)}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
         >
-          ➕ Nuova Richiesta
+          {t('pricingManagement.addRequestButton')}
         </button>
       </div>
 
@@ -157,11 +159,11 @@ export const PricingManagement: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ricerca
+              {t('pricingManagement.searchLabel')}
             </label>
             <input
               type="text"
-              placeholder="Città, prodotto, HS Code..."
+              placeholder={t('pricingManagement.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -170,31 +172,31 @@ export const PricingManagement: React.FC = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Stato
+              {t('pricingManagement.statusLabel')}
             </label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Tutti gli stati</option>
-              <option value="pending">In attesa</option>
-              <option value="calculated">Calcolato</option>
-              <option value="expired">Scaduto</option>
-              <option value="cancelled">Annullato</option>
+              <option value="">{t('pricingManagement.allStatuses')}</option>
+              <option value="pending">{t('pricingManagement.pendingStatus')}</option>
+              <option value="calculated">{t('pricingManagement.calculatedStatus')}</option>
+              <option value="expired">{t('pricingManagement.expiredStatus')}</option>
+              <option value="cancelled">{t('pricingManagement.cancelledStatus')}</option>
             </select>
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo Trasporto
+              {t('pricingManagement.transportTypeLabel')}
             </label>
             <select
               value={filterTransportType}
               onChange={(e) => setFilterTransportType(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Tutti i tipi</option>
+              <option value="">{t('pricingManagement.allTransportTypes')}</option>
               {transportTypes.map(type => (
                 <option key={type} value={type}>{type}</option>
               ))}
@@ -210,7 +212,7 @@ export const PricingManagement: React.FC = () => {
               }}
               className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
             >
-              🔄 Reset Filtri
+              {t('pricingManagement.resetFiltersButton')}
             </button>
           </div>
         </div>
@@ -223,25 +225,25 @@ export const PricingManagement: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Origine → Destinazione
+                  {t('pricingManagement.originDestinationHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Prodotto
+                  {t('pricingManagement.productHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Peso/Volume
+                  {t('pricingManagement.weightVolumeHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Trasporto
+                  {t('pricingManagement.transportHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Valore
+                  {t('pricingManagement.valueHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Stato
+                  {t('pricingManagement.statusHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Azioni
+                  {t('pricingManagement.actionsHeader')}
                 </th>
               </tr>
             </thead>
@@ -282,10 +284,10 @@ export const PricingManagement: React.FC = () => {
                       request.status === 'expired' ? 'bg-red-100 text-red-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
-                      {request.status === 'calculated' ? 'Calcolato' :
-                       request.status === 'pending' ? 'In attesa' :
-                       request.status === 'expired' ? 'Scaduto' :
-                       request.status === 'cancelled' ? 'Annullato' : request.status}
+                      {request.status === 'calculated' ? t('pricingManagement.calculatedStatus') :
+                       request.status === 'pending' ? t('pricingManagement.pendingStatus') :
+                       request.status === 'expired' ? t('pricingManagement.expiredStatus') :
+                       request.status === 'cancelled' ? t('pricingManagement.cancelledStatus') : request.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -293,13 +295,13 @@ export const PricingManagement: React.FC = () => {
                       onClick={() => handleEdit(request)}
                       className="text-indigo-600 hover:text-indigo-900 mr-3"
                     >
-                      ✏️ Modifica
+                      {t('pricingManagement.editAction')}
                     </button>
                     <button
                       onClick={() => handleDelete(request._id!)}
                       className="text-red-600 hover:text-red-900"
                     >
-                      🗑️ Elimina
+                      {t('pricingManagement.deleteAction')}
                     </button>
                   </td>
                 </tr>
@@ -317,24 +319,24 @@ export const PricingManagement: React.FC = () => {
                 disabled={pagination.page === 1}
                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
               >
-                Precedente
+                {t('pricingManagement.previousPage')}
               </button>
               <button
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page === pagination.pages}
                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
               >
-                Successiva
+                {t('pricingManagement.nextPage')}
               </button>
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700">
-                  Mostrando <span className="font-medium">{(pagination.page - 1) * pagination.limit + 1}</span> a{' '}
-                  <span className="font-medium">
-                    {Math.min(pagination.page * pagination.limit, pagination.total)}
-                  </span>{' '}
-                  di <span className="font-medium">{pagination.total}</span> risultati
+                  {t('pricingManagement.showingResults', {
+                    start: (pagination.page - 1) * pagination.limit + 1,
+                    end: Math.min(pagination.page * pagination.limit, pagination.total),
+                    total: pagination.total
+                  })}
                 </p>
               </div>
               <div>
@@ -382,6 +384,7 @@ interface PricingFormProps {
 }
 
 const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }) => {
+  const { t } = useTranslation('admin');
   const transportTypes = pricingService.getAvailableTransportTypes();
   const countries = pricingService.getAvailableCountries();
   const [formData, setFormData] = useState<Partial<PricingRequest>>({
@@ -442,7 +445,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
         <div className="mt-3">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900">
-              {request ? 'Modifica Richiesta di Pricing' : 'Nuova Richiesta di Pricing'}
+              {request ? t('pricingManagement.editRequestTitle') : t('pricingManagement.newRequestTitle')}
             </h3>
             <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">✕</button>
           </div>
@@ -452,7 +455,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Paese Origine
+                  {t('pricingManagement.originCountryLabel')}
                 </label>
                 <select
                   value={formData.origin?.country || ''}
@@ -466,7 +469,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                   })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="">Seleziona paese</option>
+                  <option value="">{t('pricingManagement.selectCountry')}</option>
                   {countries.map(country => (
                     <option key={country} value={country}>{country}</option>
                   ))}
@@ -474,7 +477,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Paese Destinazione
+                  {t('pricingManagement.destinationCountryLabel')}
                 </label>
                 <select
                   value={formData.destination?.country || ''}
@@ -488,7 +491,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                   })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="">Seleziona paese</option>
+                  <option value="">{t('pricingManagement.selectCountry')}</option>
                   {countries.map(country => (
                     <option key={country} value={country}>{country}</option>
                   ))}
@@ -499,7 +502,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Città Origine
+                  {t('pricingManagement.originCityLabel')}
                 </label>
                 <select
                   value={formData.origin?.city || ''}
@@ -514,7 +517,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                   disabled={!formData.origin?.country}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
                 >
-                  <option value="">Seleziona città</option>
+                  <option value="">{t('pricingManagement.selectCity')}</option>
                   {formData.origin?.country && pricingService.getAvailableCities(formData.origin.country).map(city => (
                     <option key={city} value={city}>{city}</option>
                   ))}
@@ -522,7 +525,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Città Destinazione
+                  {t('pricingManagement.destinationCityLabel')}
                 </label>
                 <select
                   value={formData.destination?.city || ''}
@@ -537,7 +540,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                   disabled={!formData.destination?.country}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
                 >
-                  <option value="">Seleziona città</option>
+                  <option value="">{t('pricingManagement.selectCity')}</option>
                   {formData.destination?.country && pricingService.getAvailableCities(formData.destination.country).map(city => (
                     <option key={city} value={city}>{city}</option>
                   ))}
@@ -547,11 +550,11 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
 
             {/* Cargo Details */}
             <div>
-              <h4 className="text-md font-medium text-gray-900 mb-3">Dettagli Merce</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-3">{t('pricingManagement.cargoDetailsTitle')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Descrizione Prodotto
+                    {t('pricingManagement.productDescriptionLabel')}
                   </label>
                   <input
                     type="text"
@@ -568,7 +571,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    HS Code
+                    {t('pricingManagement.hsCodeLabel')}
                   </label>
                   <input
                     type="text"
@@ -585,7 +588,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Peso (kg)
+                    {t('pricingManagement.weightLabel')}
                   </label>
                   <input
                     type="number"
@@ -604,7 +607,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Volume (m³)
+                    {t('pricingManagement.volumeLabel')}
                   </label>
                   <input
                     type="number"
@@ -623,7 +626,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Valore (€)
+                    {t('pricingManagement.valueLabel')}
                   </label>
                   <input
                     type="number"
@@ -645,11 +648,11 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
 
             {/* Transport Details */}
             <div>
-              <h4 className="text-md font-medium text-gray-900 mb-3">Dettagli Trasporto</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-3">{t('pricingManagement.transportDetailsTitle')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tipo Trasporto
+                    {t('pricingManagement.transportTypeLabel')}
                   </label>
                   <select
                     value={formData.transport?.type || 'road'}
@@ -669,7 +672,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Urgenza
+                    {t('pricingManagement.urgencyLabel')}
                   </label>
                   <select
                     value={formData.transport?.urgency || 'standard'}
@@ -682,9 +685,9 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
-                    <option value="standard">Standard</option>
-                    <option value="express">Express</option>
-                    <option value="urgent">Urgente</option>
+                    <option value="standard">{t('pricingManagement.standardUrgency')}</option>
+                    <option value="express">{t('pricingManagement.expressUrgency')}</option>
+                    <option value="urgent">{t('pricingManagement.urgentUrgency')}</option>
                   </select>
                 </div>
               </div>
@@ -694,7 +697,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stato
+                  {t('pricingManagement.statusLabel')}
                 </label>
                 <select
                   value={formData.status || 'pending'}
@@ -704,22 +707,22 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                   })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="pending">In attesa</option>
-                  <option value="calculated">Calcolato</option>
-                  <option value="expired">Scaduto</option>
-                  <option value="cancelled">Annullato</option>
+                  <option value="pending">{t('pricingManagement.pendingStatus')}</option>
+                  <option value="calculated">{t('pricingManagement.calculatedStatus')}</option>
+                  <option value="expired">{t('pricingManagement.expiredStatus')}</option>
+                  <option value="cancelled">{t('pricingManagement.cancelledStatus')}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Note (opzionale)
+                  {t('pricingManagement.notesLabel')}
                 </label>
                 <textarea
                   rows={3}
                   value={formData.notes || ''}
                   onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  placeholder="Note per la richiesta..."
+                  placeholder={t('pricingManagement.notesPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -732,13 +735,13 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                 onClick={onCancel}
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
               >
-                Annulla
+                {t('pricingManagement.cancelButton')}
               </button>
               <button
                 type="submit"
                 className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
               >
-                {request ? 'Aggiorna Richiesta' : 'Crea Richiesta'}
+                {request ? t('pricingManagement.updateRequestButton') : t('pricingManagement.createRequestButton')}
               </button>
             </div>
           </form>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AnalyticsData {
   totalCalculations: number;
@@ -29,6 +30,7 @@ interface AnalyticsData {
 }
 
 export const Analytics: React.FC = () => {
+  const { t } = useTranslation('admin');
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('7d');
@@ -90,17 +92,17 @@ export const Analytics: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
-          📊 Analytics e Report
+          📊 {t('analytics.title')}
         </h2>
         <select
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value)}
           className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
-          <option value="7d">Ultimi 7 giorni</option>
-          <option value="30d">Ultimi 30 giorni</option>
-          <option value="90d">Ultimi 90 giorni</option>
-          <option value="1y">Ultimo anno</option>
+          <option value="7d">{t('analytics.last7Days')}</option>
+          <option value="30d">{t('analytics.last30Days')}</option>
+          <option value="90d">{t('analytics.last90Days')}</option>
+          <option value="1y">{t('analytics.lastYear')}</option>
         </select>
       </div>
 
@@ -112,7 +114,7 @@ export const Analytics: React.FC = () => {
               <span className="text-2xl">📈</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Calcoli Totali</p>
+              <p className="text-sm font-medium text-gray-600">{t('analytics.totalCalculations')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {data.totalCalculations.toLocaleString()}
               </p>
@@ -126,7 +128,7 @@ export const Analytics: React.FC = () => {
               <span className="text-2xl">📅</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Oggi</p>
+              <p className="text-sm font-medium text-gray-600">{t('analytics.today')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {data.calculationsToday}
               </p>
@@ -140,7 +142,7 @@ export const Analytics: React.FC = () => {
               <span className="text-2xl">💰</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Costo Medio</p>
+              <p className="text-sm font-medium text-gray-600">{t('analytics.averageCost')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 €{data.averageCost.toLocaleString()}
               </p>
@@ -154,7 +156,7 @@ export const Analytics: React.FC = () => {
               <span className="text-2xl">🚚</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Rotte Attive</p>
+              <p className="text-sm font-medium text-gray-600">{t('analytics.activeRoutes')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {data.topRoutes.length}
               </p>
@@ -168,7 +170,7 @@ export const Analytics: React.FC = () => {
         {/* Transport Type Breakdown */}
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Distribuzione per Tipo di Trasporto
+            {t('analytics.transportTypeBreakdown')}
           </h3>
           <div className="space-y-4">
             {data.transportTypeBreakdown.map((item) => (
@@ -199,7 +201,7 @@ export const Analytics: React.FC = () => {
         {/* Top Routes */}
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Top 5 Rotte
+            {t('analytics.top5Routes')}
           </h3>
           <div className="space-y-3">
             {data.topRoutes.map((route, index) => (
@@ -211,7 +213,7 @@ export const Analytics: React.FC = () => {
                       {route.origin} → {route.destination}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {route.count.toLocaleString()} spedizioni
+                      {route.count.toLocaleString()} {t('analytics.shipments')}
                     </p>
                   </div>
                 </div>
@@ -219,7 +221,7 @@ export const Analytics: React.FC = () => {
                   <p className="text-sm font-medium text-gray-900">
                     €{route.averageCost.toLocaleString()}
                   </p>
-                  <p className="text-xs text-gray-500">costo medio</p>
+                  <p className="text-xs text-gray-500">{t('analytics.averageCost')}</p>
                 </div>
               </div>
             ))}
@@ -229,7 +231,7 @@ export const Analytics: React.FC = () => {
         {/* Cost Trends */}
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Trend Costi (Ultimi 7 giorni)
+            {t('analytics.costTrends')}
           </h3>
           <div className="space-y-3">
             {data.costTrends.map((trend) => (
@@ -245,7 +247,7 @@ export const Analytics: React.FC = () => {
                     €{trend.averageCost.toLocaleString()}
                   </span>
                   <span className="text-xs text-gray-500">
-                    ({trend.count} calcoli)
+                    ({trend.count} {t('analytics.calculations')})
                   </span>
                 </div>
               </div>
@@ -256,7 +258,7 @@ export const Analytics: React.FC = () => {
         {/* Top HS Codes */}
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Top Codici HS
+            {t('analytics.topHSCodes')}
           </h3>
           <div className="space-y-3">
             {data.topHSCodes.map((hsCode, index) => (
@@ -277,7 +279,7 @@ export const Analytics: React.FC = () => {
                     {hsCode.averageDuty}%
                   </p>
                   <p className="text-xs text-gray-500">
-                    {hsCode.count} usi
+                    {hsCode.count} {t('analytics.uses')}
                   </p>
                 </div>
               </div>
@@ -289,20 +291,20 @@ export const Analytics: React.FC = () => {
       {/* Export Options */}
       <div className="mt-8 bg-white p-6 rounded-lg border border-gray-200">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          📤 Esporta Report
+          📤 {t('analytics.exportReport')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
             <span className="mr-2">📊</span>
-            Report Completo (PDF)
+            {t('analytics.completeReportPDF')}
           </button>
           <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
             <span className="mr-2">📈</span>
-            Dati Analytics (CSV)
+            {t('analytics.analyticsDataCSV')}
           </button>
           <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
             <span className="mr-2">💰</span>
-            Report Tariffe (Excel)
+            {t('analytics.tariffReportExcel')}
           </button>
         </div>
       </div>
@@ -315,17 +317,17 @@ export const Analytics: React.FC = () => {
           </div>
           <div className="ml-3">
             <h3 className="text-lg font-medium text-blue-900">
-              Analytics Avanzate in Sviluppo
+              {t('analytics.advancedAnalyticsInDevelopment')}
             </h3>
             <div className="mt-2 text-sm text-blue-700">
-              <p>Prossime funzionalità:</p>
+              <p>{t('analytics.upcomingFeatures')}:</p>
               <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Grafici interattivi con Chart.js</li>
-                <li>Predizioni di costo basate su ML</li>
-                <li>Analisi stagionali e trend</li>
-                <li>Dashboard personalizzabili</li>
-                <li>Report automatici via email</li>
-                <li>Integrazione con sistemi esterni</li>
+                <li>{t('analytics.interactiveCharts')}</li>
+                <li>{t('analytics.mlCostPredictions')}</li>
+                <li>{t('analytics.seasonalAnalysis')}</li>
+                <li>{t('analytics.customizableDashboards')}</li>
+                <li>{t('analytics.automaticReports')}</li>
+                <li>{t('analytics.externalSystemIntegration')}</li>
               </ul>
             </div>
           </div>

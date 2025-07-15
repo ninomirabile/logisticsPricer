@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { TariffManagement } from './TariffManagement';
 import { PricingManagement } from './PricingManagement';
 import { USDutiesManagement } from './USDutiesManagement';
@@ -9,15 +10,16 @@ import { ShippingRouteStatsComponent } from './ShippingRouteStats';
 
 export const AdminDashboard: React.FC = () => {
   const location = useLocation();
+  const { t } = useTranslation('admin');
 
   const navigation = [
-    { name: 'Panoramica', href: '/admin', icon: '📊' },
-    { name: 'Gestione Tariffe', href: '/admin/tariffs', icon: '💰' },
-    { name: 'Gestione Prezzi', href: '/admin/pricing', icon: '📈' },
-    { name: 'Rotte di Trasporto', href: '/admin/shipping-routes', icon: '🚚' },
-    { name: 'Statistiche Rotte', href: '/admin/shipping-stats', icon: '📋' },
-    { name: 'Dazi USA', href: '/admin/us-duties', icon: '🇺🇸' },
-    { name: 'Analytics', href: '/admin/analytics', icon: '📊' },
+    { name: t('dashboard.overview'), href: '/admin', icon: '📊' },
+    { name: t('tariffs.title'), href: '/admin/tariffs', icon: '💰' },
+    { name: t('pricing.title'), href: '/admin/pricing', icon: '📈' },
+    { name: t('shipping.title'), href: '/admin/shipping-routes', icon: '🚚' },
+    { name: t('shipping.stats.totalRoutes'), href: '/admin/shipping-stats', icon: '📋' },
+    { name: t('usaDuties.title'), href: '/admin/us-duties', icon: '🇺🇸' },
+    { name: t('analytics.title'), href: '/admin/analytics', icon: '📊' },
   ];
 
   const isActive = (href: string) => {
@@ -33,10 +35,10 @@ export const AdminDashboard: React.FC = () => {
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
           <h1 className="text-2xl font-bold text-white">
-            🛠️ Dashboard Amministrativa
+            🛠️ {t('dashboard.title')}
           </h1>
           <p className="text-indigo-100 mt-1">
-            Gestione completa di prezzi, tariffe e configurazioni
+            {t('dashboard.welcome')}
           </p>
         </div>
 
@@ -84,10 +86,12 @@ export const AdminDashboard: React.FC = () => {
 
 // Dashboard Overview Component
 const DashboardOverview: React.FC = () => {
+  const { t } = useTranslation('admin');
+
   return (
     <div>
       <h2 className="text-xl font-semibold text-gray-900 mb-6">
-        Panoramica Dashboard
+        {t('dashboard.overview')}
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -98,7 +102,7 @@ const DashboardOverview: React.FC = () => {
               <span className="text-2xl">💰</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Tariffe Attive</p>
+              <p className="text-sm font-medium text-gray-600">{t('tariffs.stats.activeTariffs')}</p>
               <p className="text-2xl font-semibold text-gray-900">1,247</p>
             </div>
           </div>
@@ -110,7 +114,7 @@ const DashboardOverview: React.FC = () => {
               <span className="text-2xl">📈</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Calcoli Oggi</p>
+              <p className="text-sm font-medium text-gray-600">{t('pricing.stats.calculatedRequests')}</p>
               <p className="text-2xl font-semibold text-gray-900">342</p>
             </div>
           </div>
@@ -122,7 +126,7 @@ const DashboardOverview: React.FC = () => {
               <span className="text-2xl">🚚</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Rotte di Trasporto</p>
+              <p className="text-sm font-medium text-gray-600">{t('shipping.stats.totalRoutes')}</p>
               <p className="text-2xl font-semibold text-gray-900">156</p>
             </div>
           </div>
@@ -134,7 +138,7 @@ const DashboardOverview: React.FC = () => {
               <span className="text-2xl">🇺🇸</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Dazi USA</p>
+              <p className="text-sm font-medium text-gray-600">{t('usaDuties.stats.totalDuties')}</p>
               <p className="text-2xl font-semibold text-gray-900">89</p>
             </div>
           </div>
@@ -144,7 +148,7 @@ const DashboardOverview: React.FC = () => {
       {/* Quick Actions */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Azioni Rapide
+          {t('dashboard.quickActions')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Link
@@ -153,8 +157,8 @@ const DashboardOverview: React.FC = () => {
           >
             <span className="text-2xl mr-3">➕</span>
             <div>
-              <p className="font-medium text-gray-900">Aggiungi Tariffa</p>
-              <p className="text-sm text-gray-600">Nuova tariffa doganale</p>
+              <p className="font-medium text-gray-900">{t('tariffs.createTariff')}</p>
+              <p className="text-sm text-gray-600">{t('tariffs.createTariffDesc')}</p>
             </div>
           </Link>
 
@@ -164,8 +168,8 @@ const DashboardOverview: React.FC = () => {
           >
             <span className="text-2xl mr-3">⚙️</span>
             <div>
-              <p className="font-medium text-gray-900">Configura Prezzi</p>
-              <p className="text-sm text-gray-600">Modifica prezzi base</p>
+              <p className="font-medium text-gray-900">{t('pricing.title')}</p>
+              <p className="text-sm text-gray-600">{t('pricing.titleDesc')}</p>
             </div>
           </Link>
 
@@ -175,8 +179,8 @@ const DashboardOverview: React.FC = () => {
           >
             <span className="text-2xl mr-3">🚚</span>
             <div>
-              <p className="font-medium text-gray-900">Gestisci Rotte</p>
-              <p className="text-sm text-gray-600">Rotte di trasporto</p>
+              <p className="font-medium text-gray-900">{t('shipping.title')}</p>
+              <p className="text-sm text-gray-600">{t('shipping.titleDesc')}</p>
             </div>
           </Link>
 
@@ -186,8 +190,8 @@ const DashboardOverview: React.FC = () => {
           >
             <span className="text-2xl mr-3">🇺🇸</span>
             <div>
-              <p className="font-medium text-gray-900">Dazi USA</p>
-              <p className="text-sm text-gray-600">Gestisci tariffe USA</p>
+              <p className="font-medium text-gray-900">{t('usaDuties.title')}</p>
+              <p className="text-sm text-gray-600">{t('usaDuties.titleDesc')}</p>
             </div>
           </Link>
         </div>

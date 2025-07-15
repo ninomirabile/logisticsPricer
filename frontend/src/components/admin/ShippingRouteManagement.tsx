@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { shippingService, ShippingRoute, ShippingRouteFilters } from '../../services/shippingService';
 
 export const ShippingRouteManagement: React.FC = () => {
+  const { t } = useTranslation('admin');
   const [routes, setRoutes] = useState<ShippingRoute[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,13 +127,13 @@ export const ShippingRouteManagement: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
-          Gestione Rotte di Trasporto
+          {t('shippingRouteManagement.title')}
         </h2>
         <button
           onClick={() => setShowForm(true)}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
         >
-          ➕ Nuova Rotta
+          {t('shippingRouteManagement.addRouteButton')}
         </button>
       </div>
 
@@ -164,11 +166,11 @@ export const ShippingRouteManagement: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ricerca
+              {t('shippingRouteManagement.searchLabel')}
             </label>
             <input
               type="text"
-              placeholder="Route ID, note..."
+              placeholder={t('shippingRouteManagement.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -177,14 +179,14 @@ export const ShippingRouteManagement: React.FC = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Paese Origine
+              {t('shippingRouteManagement.filterOriginCountryLabel')}
             </label>
             <select
               value={filterOriginCountry}
               onChange={(e) => setFilterOriginCountry(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Tutti i paesi</option>
+              <option value="">{t('shippingRouteManagement.allCountries')}</option>
               {countries.map(country => (
                 <option key={country} value={country}>{country}</option>
               ))}
@@ -193,14 +195,14 @@ export const ShippingRouteManagement: React.FC = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Paese Destinazione
+              {t('shippingRouteManagement.filterDestinationCountryLabel')}
             </label>
             <select
               value={filterDestinationCountry}
               onChange={(e) => setFilterDestinationCountry(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Tutti i paesi</option>
+              <option value="">{t('shippingRouteManagement.allCountries')}</option>
               {countries.map(country => (
                 <option key={country} value={country}>{country}</option>
               ))}
@@ -209,14 +211,14 @@ export const ShippingRouteManagement: React.FC = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo Trasporto
+              {t('shippingRouteManagement.filterTransportTypeLabel')}
             </label>
             <select
               value={filterTransportType}
               onChange={(e) => setFilterTransportType(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Tutti i tipi</option>
+              <option value="">{t('shippingRouteManagement.allTypes')}</option>
               {transportTypes.map(type => (
                 <option key={type} value={type}>{type}</option>
               ))}
@@ -225,16 +227,16 @@ export const ShippingRouteManagement: React.FC = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Stato
+              {t('shippingRouteManagement.filterIsActiveLabel')}
             </label>
             <select
               value={filterIsActive}
               onChange={(e) => setFilterIsActive(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Tutti</option>
-              <option value="true">Attive</option>
-              <option value="false">Inattive</option>
+              <option value="">{t('shippingRouteManagement.allStatuses')}</option>
+              <option value="true">{t('shippingRouteManagement.active')}</option>
+              <option value="false">{t('shippingRouteManagement.inactive')}</option>
             </select>
           </div>
           
@@ -249,7 +251,7 @@ export const ShippingRouteManagement: React.FC = () => {
               }}
               className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
             >
-              🔄 Reset Filtri
+              {t('shippingRouteManagement.resetFiltersButton')}
             </button>
           </div>
         </div>
@@ -262,25 +264,25 @@ export const ShippingRouteManagement: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Route ID
+                  {t('shippingRouteManagement.routeIdHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Origine → Destinazione
+                  {t('shippingRouteManagement.originDestinationHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Trasporto
+                  {t('shippingRouteManagement.transportTypeHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tempi
+                  {t('shippingRouteManagement.transitTimesHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Costi
+                  {t('shippingRouteManagement.costsHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Stato
+                  {t('shippingRouteManagement.statusHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Azioni
+                  {t('shippingRouteManagement.actionsHeader')}
                 </th>
               </tr>
             </thead>
@@ -301,8 +303,8 @@ export const ShippingRouteManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div>
-                      <div>Base: {route.baseTransitTime} giorni</div>
-                      <div className="text-gray-400">Totale: {route.totalTransitTime} giorni</div>
+                      <div>{t('shippingRouteManagement.baseTransitTime')}: {route.baseTransitTime} {t('shippingRouteManagement.days')}</div>
+                      <div className="text-gray-400">{t('shippingRouteManagement.totalTransitTime')}: {route.totalTransitTime} {t('shippingRouteManagement.days')}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -312,7 +314,7 @@ export const ShippingRouteManagement: React.FC = () => {
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       route.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
-                      {route.isActive ? 'Attiva' : 'Inattiva'}
+                      {route.isActive ? t('shippingRouteManagement.active') : t('shippingRouteManagement.inactive')}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -320,13 +322,13 @@ export const ShippingRouteManagement: React.FC = () => {
                       onClick={() => handleEdit(route)}
                       className="text-indigo-600 hover:text-indigo-900 mr-3"
                     >
-                      ✏️ Modifica
+                      {t('shippingRouteManagement.editButton')}
                     </button>
                     <button
                       onClick={() => handleDelete(route._id!)}
                       className="text-red-600 hover:text-red-900"
                     >
-                      🗑️ Elimina
+                      {t('shippingRouteManagement.deleteButton')}
                     </button>
                   </td>
                 </tr>
@@ -344,24 +346,24 @@ export const ShippingRouteManagement: React.FC = () => {
                 disabled={pagination.page === 1}
                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
               >
-                Precedente
+                {t('shippingRouteManagement.previousButton')}
               </button>
               <button
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page === pagination.pages}
                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
               >
-                Successiva
+                {t('shippingRouteManagement.nextButton')}
               </button>
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700">
-                  Mostrando <span className="font-medium">{(pagination.page - 1) * pagination.limit + 1}</span> a{' '}
-                  <span className="font-medium">
-                    {Math.min(pagination.page * pagination.limit, pagination.total)}
-                  </span>{' '}
-                  di <span className="font-medium">{pagination.total}</span> risultati
+                  {t('shippingRouteManagement.showingResults', {
+                    start: (pagination.page - 1) * pagination.limit + 1,
+                    end: Math.min(pagination.page * pagination.limit, pagination.total),
+                    total: pagination.total
+                  })}
                 </p>
               </div>
               <div>
@@ -409,6 +411,7 @@ interface ShippingRouteFormProps {
 }
 
 const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, onCancel }) => {
+  const { t } = useTranslation('admin');
   const transportTypes = shippingService.getAvailableTransportTypes();
   const countries = shippingService.getAvailableCountries();
   
@@ -482,7 +485,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
         <div className="mt-3">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900">
-              {route ? 'Modifica Rotta di Trasporto' : 'Nuova Rotta di Trasporto'}
+              {route ? t('shippingRouteManagement.editRouteTitle') : t('shippingRouteManagement.addRouteTitle')}
             </h3>
             <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">✕</button>
           </div>
@@ -492,7 +495,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Route ID *
+                  {t('shippingRouteManagement.routeIdLabel')} *
                 </label>
                 <input
                   type="text"
@@ -504,7 +507,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fonte *
+                  {t('shippingRouteManagement.sourceLabel')} *
                 </label>
                 <input
                   type="text"
@@ -520,7 +523,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Paese Origine *
+                  {t('shippingRouteManagement.originCountryLabel')} *
                 </label>
                 <select
                   value={formData.originCountry || ''}
@@ -528,7 +531,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   required
                 >
-                  <option value="">Seleziona paese</option>
+                  <option value="">{t('shippingRouteManagement.selectCountry')}</option>
                   {countries.map(country => (
                     <option key={country} value={country}>{country}</option>
                   ))}
@@ -536,7 +539,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Paese Destinazione *
+                  {t('shippingRouteManagement.destinationCountryLabel')} *
                 </label>
                 <select
                   value={formData.destinationCountry || ''}
@@ -544,7 +547,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   required
                 >
-                  <option value="">Seleziona paese</option>
+                  <option value="">{t('shippingRouteManagement.selectCountry')}</option>
                   {countries.map(country => (
                     <option key={country} value={country}>{country}</option>
                   ))}
@@ -552,7 +555,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tipo Trasporto *
+                  {t('shippingRouteManagement.transportTypeLabel')} *
                 </label>
                 <select
                   value={formData.transportType || 'road'}
@@ -569,11 +572,11 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
 
             {/* Transit Times */}
             <div>
-              <h4 className="text-md font-medium text-gray-900 mb-3">Tempi di Transito (giorni)</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-3">{t('shippingRouteManagement.transitTimesTitle')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tempo Base *
+                    {t('shippingRouteManagement.baseTransitTimeLabel')} *
                   </label>
                   <input
                     type="number"
@@ -586,7 +589,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ritardo Dogana
+                    {t('shippingRouteManagement.customsDelayLabel')}
                   </label>
                   <input
                     type="number"
@@ -598,7 +601,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Congestione Porto
+                    {t('shippingRouteManagement.portCongestionLabel')}
                   </label>
                   <input
                     type="number"
@@ -613,11 +616,11 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
 
             {/* Costs */}
             <div>
-              <h4 className="text-md font-medium text-gray-900 mb-3">Costi (€)</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-3">{t('shippingRouteManagement.costsTitle')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Costo Base
+                    {t('shippingRouteManagement.baseCostLabel')}
                   </label>
                   <input
                     type="number"
@@ -636,7 +639,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tasse Dogana
+                    {t('shippingRouteManagement.customsFeesLabel')}
                   </label>
                   <input
                     type="number"
@@ -655,7 +658,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tasse Porto
+                    {t('shippingRouteManagement.portFeesLabel')}
                   </label>
                   <input
                     type="number"
@@ -674,7 +677,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Costi Aggiuntivi
+                    {t('shippingRouteManagement.additionalFeesLabel')}
                   </label>
                   <input
                     type="number"
@@ -698,20 +701,20 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stato
+                  {t('shippingRouteManagement.statusLabel')}
                 </label>
                 <select
                   value={formData.isActive ? 'true' : 'false'}
                   onChange={(e) => setFormData({...formData, isActive: e.target.value === 'true'})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="true">Attiva</option>
-                  <option value="false">Inattiva</option>
+                  <option value="true">{t('shippingRouteManagement.active')}</option>
+                  <option value="false">{t('shippingRouteManagement.inactive')}</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Data Effettiva *
+                  {t('shippingRouteManagement.effectiveDateLabel')} *
                 </label>
                 <input
                   type="date"
@@ -723,7 +726,7 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Data Scadenza
+                  {t('shippingRouteManagement.expiryDateLabel')}
                 </label>
                 <input
                   type="date"
@@ -737,13 +740,13 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
             {/* Notes */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Note (opzionale)
+                {t('shippingRouteManagement.notesLabel')}
               </label>
               <textarea
                 rows={3}
                 value={formData.notes || ''}
                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                placeholder="Note per la rotta..."
+                placeholder={t('shippingRouteManagement.notesPlaceholder')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -755,13 +758,13 @@ const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, 
                 onClick={onCancel}
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
               >
-                Annulla
+                {t('shippingRouteManagement.cancelButton')}
               </button>
               <button
                 type="submit"
                 className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
               >
-                {route ? 'Aggiorna Rotta' : 'Crea Rotta'}
+                {route ? t('shippingRouteManagement.updateRouteButton') : t('shippingRouteManagement.createRouteButton')}
               </button>
             </div>
           </form>

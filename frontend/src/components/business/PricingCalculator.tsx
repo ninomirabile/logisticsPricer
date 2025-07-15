@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PricingForm } from './PricingForm';
 import { PricingResult } from './PricingResult';
 import { PricingRequest, PricingResponse } from '../../types/pricing';
 import { pricingService } from '../../services/pricingService';
 
 export const PricingCalculator: React.FC = () => {
+  const { t } = useTranslation('common');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<PricingResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +27,7 @@ export const PricingCalculator: React.FC = () => {
       };
       setResult(convertedResult);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Errore durante il calcolo');
+      setError(err instanceof Error ? err.message : t('pricingCalculator.calculationError'));
     } finally {
       setIsLoading(false);
     }
@@ -42,10 +44,10 @@ export const PricingCalculator: React.FC = () => {
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4">
           <h1 className="text-2xl font-bold text-white">
-            🚚 LogisticsPricer - Calcolo Prezzi Trasporto
+            🚚 {t('pricingCalculator.title')}
           </h1>
           <p className="text-blue-100 mt-1">
-            Calcola il costo completo del trasporto merci con dazi e tariffe
+            {t('pricingCalculator.subtitle')}
           </p>
         </div>
 
@@ -70,7 +72,7 @@ export const PricingCalculator: React.FC = () => {
                 </div>
                 <div className="ml-3">
                   <h3 className="text-sm font-medium text-red-800">
-                    Errore durante il calcolo
+                    {t('pricingCalculator.calculationError')}
                   </h3>
                   <div className="mt-2 text-sm text-red-700">
                     {error}

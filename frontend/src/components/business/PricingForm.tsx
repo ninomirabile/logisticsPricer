@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PricingRequest, HSCode } from '../../types/pricing';
 
 interface PricingFormProps {
@@ -7,6 +8,7 @@ interface PricingFormProps {
 }
 
 export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading }) => {
+  const { t } = useTranslation('common');
   const [formData, setFormData] = useState<PricingRequest>({
     origin: '',
     destination: '',
@@ -75,16 +77,16 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
   };
 
   const countries = [
-    { code: 'IT', name: 'Italia' },
-    { code: 'DE', name: 'Germania' },
-    { code: 'FR', name: 'Francia' },
-    { code: 'ES', name: 'Spagna' },
-    { code: 'CN', name: 'Cina' },
-    { code: 'US', name: 'Stati Uniti' },
-    { code: 'GB', name: 'Regno Unito' },
-    { code: 'NL', name: 'Paesi Bassi' },
-    { code: 'BE', name: 'Belgio' },
-    { code: 'AT', name: 'Austria' },
+    { code: 'IT', name: t('countries.italy') },
+    { code: 'DE', name: t('countries.germany') },
+    { code: 'FR', name: t('countries.france') },
+    { code: 'ES', name: t('countries.spain') },
+    { code: 'CN', name: t('countries.china') },
+    { code: 'US', name: t('countries.usa') },
+    { code: 'GB', name: t('countries.uk') },
+    { code: 'NL', name: t('countries.netherlands') },
+    { code: 'BE', name: t('countries.belgium') },
+    { code: 'AT', name: t('countries.austria') },
   ];
 
   return (
@@ -93,7 +95,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Paese di Origine *
+            {t('pricingForm.originCountry')} *
           </label>
           <select
             value={formData.origin}
@@ -101,7 +103,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Seleziona paese</option>
+            <option value="">{t('pricingForm.selectCountry')}</option>
             {countries.map(country => (
               <option key={country.code} value={country.code}>
                 {country.name} ({country.code})
@@ -112,7 +114,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Paese di Destinazione *
+            {t('pricingForm.destinationCountry')} *
           </label>
           <select
             value={formData.destination}
@@ -120,7 +122,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Seleziona paese</option>
+            <option value="">{t('pricingForm.selectCountry')}</option>
             {countries.map(country => (
               <option key={country.code} value={country.code}>
                 {country.name} ({country.code})
@@ -134,7 +136,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Peso (kg) *
+            {t('pricingForm.weight')} *
           </label>
           <input
             type="number"
@@ -144,13 +146,13 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
             onChange={(e) => handleInputChange('weight', parseFloat(e.target.value) || 0)}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Es. 100"
+            placeholder={t('pricingForm.weightPlaceholder')}
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Volume (m³) *
+            {t('pricingForm.volume')} *
           </label>
           <input
             type="number"
@@ -160,7 +162,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
             onChange={(e) => handleInputChange('volume', parseFloat(e.target.value) || 0)}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Es. 0.5"
+            placeholder={t('pricingForm.volumePlaceholder')}
           />
         </div>
       </div>
@@ -169,7 +171,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tipo di Trasporto *
+            {t('pricingForm.transportType')} *
           </label>
           <select
             value={formData.transportType}
@@ -177,25 +179,25 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="road">🚛 Su Strada</option>
-            <option value="sea">🚢 Via Mare</option>
-            <option value="air">✈️ Via Aerea</option>
-            <option value="rail">🚂 Via Ferrovia</option>
+            <option value="road">🚛 {t('pricingForm.byRoad')}</option>
+            <option value="sea">🚢 {t('pricingForm.bySea')}</option>
+            <option value="air">✈️ {t('pricingForm.byAir')}</option>
+            <option value="rail">🚂 {t('pricingForm.byRail')}</option>
           </select>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Urgenza
+            {t('pricingForm.urgency')}
           </label>
           <select
             value={formData.urgency}
             onChange={(e) => handleInputChange('urgency', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="standard">Standard</option>
-            <option value="express">Express</option>
-            <option value="urgent">Urgente</option>
+            <option value="standard">{t('pricingForm.standard')}</option>
+            <option value="express">{t('pricingForm.express')}</option>
+            <option value="urgent">{t('pricingForm.urgent')}</option>
           </select>
         </div>
       </div>
@@ -204,14 +206,14 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Codice HS (opzionale)
+            {t('pricingForm.hsCode')}
           </label>
           <input
             type="text"
             value={hsCodeSearch}
             onChange={(e) => setHsCodeSearch(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Cerca prodotto (es. smartphone)"
+            placeholder={t('pricingForm.hsCodePlaceholder')}
           />
           {isSearchingHs && (
             <div className="absolute right-3 top-8">
@@ -239,7 +241,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Valore Prodotto (€)
+            {t('pricingForm.productValue')}
           </label>
           <input
             type="number"
@@ -248,7 +250,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
             value={formData.productValue || ''}
             onChange={(e) => handleInputChange('productValue', parseFloat(e.target.value) || 0)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Es. 1000"
+            placeholder={t('pricingForm.productValuePlaceholder')}
           />
         </div>
       </div>
@@ -256,7 +258,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
       {/* Opzioni Aggiuntive */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-3">
-          Opzioni Aggiuntive
+          {t('pricingForm.additionalOptions')}
         </label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="flex items-center">
@@ -266,7 +268,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
               onChange={(e) => handleOptionChange('insurance', e.target.checked)}
               className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <span className="text-sm text-gray-700">Assicurazione</span>
+            <span className="text-sm text-gray-700">{t('pricingForm.insurance')}</span>
           </label>
 
           <label className="flex items-center">
@@ -276,7 +278,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
               onChange={(e) => handleOptionChange('customsClearance', e.target.checked)}
               className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <span className="text-sm text-gray-700">Sdoganamento</span>
+            <span className="text-sm text-gray-700">{t('pricingForm.customsClearance')}</span>
           </label>
 
           <label className="flex items-center">
@@ -286,7 +288,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
               onChange={(e) => handleOptionChange('doorToDoor', e.target.checked)}
               className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <span className="text-sm text-gray-700">Porta a Porta</span>
+            <span className="text-sm text-gray-700">{t('pricingForm.doorToDoor')}</span>
           </label>
 
           <label className="flex items-center">
@@ -296,7 +298,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
               onChange={(e) => handleOptionChange('temperatureControlled', e.target.checked)}
               className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <span className="text-sm text-gray-700">Controllo Temperatura</span>
+            <span className="text-sm text-gray-700">{t('pricingForm.temperatureControlled')}</span>
           </label>
         </div>
       </div>
@@ -311,10 +313,10 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
           {isLoading ? (
             <div className="flex items-center">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Calcolando...
+              {t('pricingForm.calculating')}
             </div>
           ) : (
-            '🚚 Calcola Prezzo'
+            `🚚 ${t('pricingForm.calculatePrice')}`
           )}
         </button>
       </div>

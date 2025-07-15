@@ -1,0 +1,85 @@
+{
+  "errors": {
+    "validation": {
+      "required": "Required field",
+      "invalid": "Invalid value",
+      "minLength": "Minimum {{min}} characters",
+      "maxLength": "Maximum {{max}} characters",
+      "min": "Minimum value: {{min}}",
+      "max": "Maximum value: {{max}}",
+      "email": "Invalid email",
+      "url": "Invalid URL",
+      "date": "Invalid date",
+      "number": "Invalid number",
+      "integer": "Integer required",
+      "positive": "Positive number required",
+      "unique": "Value already exists",
+      "exists": "Item not found"
+    },
+    "auth": {
+      "unauthorized": "Unauthorized",
+      "forbidden": "Access denied",
+      "invalidCredentials": "Invalid credentials",
+      "tokenExpired": "Token expired",
+      "tokenInvalid": "Invalid token"
+    },
+    "database": {
+      "connection": "Database connection error",
+      "query": "Database query error",
+      "duplicate": "Duplicate item",
+      "notFound": "Item not found",
+      "constraint": "Database constraint violation"
+    },
+    "server": {
+      "internal": "Internal server error",
+      "timeout": "Request timeout",
+      "badRequest": "Bad request",
+      "notFound": "Resource not found",
+      "methodNotAllowed": "Method not allowed"
+    }
+  },
+  "messages": {
+    "success": {
+      "created": "Item created successfully",
+      "updated": "Item updated successfully",
+      "deleted": "Item deleted successfully",
+      "retrieved": "Data retrieved successfully"
+    },
+    "info": {
+      "noData": "No data available",
+      "processing": "Processing",
+      "cached": "Data from cache"
+    }
+  },
+  "validation": {
+    "shipping": {
+      "routeId": "Route ID required",
+      "originCountry": "Origin country required",
+      "destinationCountry": "Destination country required",
+      "transportType": "Transport type required",
+      "baseTransitTime": "Base transit time required",
+      "baseCost": "Base cost required"
+    },
+    "pricing": {
+      "origin": "Origin required",
+      "destination": "Destination required",
+      "weight": "Weight required",
+      "volume": "Volume required",
+      "hsCode": "HS Code required",
+      "value": "Value required"
+    },
+    "tariff": {
+      "originCountry": "Origin country required",
+      "destinationCountry": "Destination country required",
+      "hsCode": "HS Code required",
+      "baseRate": "Base rate required",
+      "effectiveDate": "Effective date required"
+    },
+    "usaDuty": {
+      "hsCode": "HS Code required",
+      "productDescription": "Product description required",
+      "baseRate": "Base rate required",
+      "effectiveDate": "Effective date required"
+    }
+  }
+} 

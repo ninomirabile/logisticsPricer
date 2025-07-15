@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   getUSDuties,
   createUSDuty,
@@ -8,6 +9,7 @@ import {
 } from '../../services/usaDutiesService';
 
 export const USDutiesManagement: React.FC = () => {
+  const { t } = useTranslation('admin');
   const [duties, setDuties] = useState<USDuty[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export const USDutiesManagement: React.FC = () => {
         setLoading(false);
       })
       .catch(() => {
-        setError('Errore nel caricamento dei dazi USA');
+        setError(t('usaDutiesManagement.loadError'));
         setLoading(false);
       });
   }, [searchTerm, filterSection, refresh]);
@@ -40,14 +42,14 @@ export const USDutiesManagement: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Sei sicuro di voler eliminare questo dazio USA?')) {
+    if (window.confirm(t('usaDutiesManagement.deleteConfirm'))) {
       setLoading(true);
       setError(null);
       try {
         await deleteUSDuty(id);
         setRefresh(r => r + 1);
       } catch {
-        setError('Errore durante l\'eliminazione');
+        setError(t('usaDutiesManagement.deleteError'));
       } finally {
         setLoading(false);
       }
@@ -67,23 +69,23 @@ export const USDutiesManagement: React.FC = () => {
       setEditingDuty(null);
       setRefresh(r => r + 1);
     } catch {
-      setError('Errore durante il salvataggio');
+      setError(t('usaDutiesManagement.saveError'));
     } finally {
       setLoading(false);
     }
   };
 
   const sections = [
-    { code: '301', name: 'Section 301 - Trade Act' },
-    { code: '232', name: 'Section 232 - National Security' },
-    { code: '201', name: 'Section 201 - Safeguards' }
+    { code: '301', name: t('usaDutiesManagement.section301') },
+    { code: '232', name: t('usaDutiesManagement.section232') },
+    { code: '201', name: t('usaDutiesManagement.section201') }
   ];
 
   const sources = [
-    { code: 'USTR', name: 'U.S. Trade Representative' },
-    { code: 'DOC', name: 'Department of Commerce' },
-    { code: 'CBP', name: 'Customs and Border Protection' },
-    { code: 'MANUAL', name: 'Inserimento Manuale' }
+    { code: 'USTR', name: t('usaDutiesManagement.sourceUSTR') },
+    { code: 'DOC', name: t('usaDutiesManagement.sourceDOC') },
+    { code: 'CBP', name: t('usaDutiesManagement.sourceCBP') },
+    { code: 'MANUAL', name: t('usaDutiesManagement.sourceManual') }
   ];
 
   if (loading) {
@@ -99,17 +101,17 @@ export const USDutiesManagement: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
-            🇺🇸 Gestione Dazi USA
+            🇺🇸 {t('usaDutiesManagement.title')}
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Gestione delle tariffe doganali specifiche per gli Stati Uniti
+            {t('usaDutiesManagement.subtitle')}
           </p>
         </div>
         <button
           onClick={() => { setShowForm(true); setEditingDuty(null); }}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
         >
-          ➕ Nuovo Dazio USA
+          {t('usaDutiesManagement.addDutyButton')}
         </button>
       </div>
 
@@ -125,7 +127,7 @@ export const USDutiesManagement: React.FC = () => {
               <span className="text-2xl">🇺🇸</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Section 301</p>
+              <p className="text-sm font-medium text-gray-600">{t('usaDutiesManagement.section301Label')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {duties.filter(d => d.section301Rate).length}
               </p>
@@ -139,7 +141,7 @@ export const USDutiesManagement: React.FC = () => {
               <span className="text-2xl">🛡️</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Section 232</p>
+              <p className="text-sm font-medium text-gray-600">{t('usaDutiesManagement.section232Label')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {duties.filter(d => d.section232Rate).length}
               </p>
@@ -153,7 +155,7 @@ export const USDutiesManagement: React.FC = () => {
               <span className="text-2xl">⚖️</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Section 201</p>
+              <p className="text-sm font-medium text-gray-600">{t('usaDutiesManagement.section201Label')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {duties.filter(d => d.section201Rate).length}
               </p>
@@ -167,7 +169,7 @@ export const USDutiesManagement: React.FC = () => {
               <span className="text-2xl">📊</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Totale Attive</p>
+              <p className="text-sm font-medium text-gray-600">{t('usaDutiesManagement.totalActiveLabel')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {duties.filter(d => d.isActive).length}
               </p>
@@ -180,7 +182,7 @@ export const USDutiesManagement: React.FC = () => {
       <div className="flex flex-wrap gap-4 mb-4">
         <input
           type="text"
-          placeholder="Cerca per HS code o descrizione..."
+          placeholder={t('usaDutiesManagement.searchPlaceholder')}
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
           className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -190,7 +192,7 @@ export const USDutiesManagement: React.FC = () => {
           onChange={e => setFilterSection(e.target.value)}
           className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
-          <option value="">Tutte le Section</option>
+          <option value="">{t('usaDutiesManagement.allSections')}</option>
           {sections.map(s => (
             <option key={s.code} value={s.code}>{s.name}</option>
           ))}
@@ -202,15 +204,15 @@ export const USDutiesManagement: React.FC = () => {
         <table className="min-w-full bg-white border border-gray-200 rounded-lg">
           <thead>
             <tr>
-              <th className="px-4 py-2">HS Code</th>
-              <th className="px-4 py-2">Descrizione</th>
-              <th className="px-4 py-2">Base Rate</th>
+              <th className="px-4 py-2">{t('usaDutiesManagement.hsCodeHeader')}</th>
+              <th className="px-4 py-2">{t('usaDutiesManagement.descriptionHeader')}</th>
+              <th className="px-4 py-2">{t('usaDutiesManagement.baseRateHeader')}</th>
               <th className="px-4 py-2">301</th>
               <th className="px-4 py-2">232</th>
               <th className="px-4 py-2">201</th>
-              <th className="px-4 py-2">Fonte</th>
-              <th className="px-4 py-2">Attivo</th>
-              <th className="px-4 py-2">Azioni</th>
+              <th className="px-4 py-2">{t('usaDutiesManagement.sourceHeader')}</th>
+              <th className="px-4 py-2">{t('usaDutiesManagement.activeHeader')}</th>
+              <th className="px-4 py-2">{t('usaDutiesManagement.actionsHeader')}</th>
             </tr>
           </thead>
           <tbody>
@@ -224,23 +226,23 @@ export const USDutiesManagement: React.FC = () => {
                 <td className="px-4 py-2">{duty.section201Rate ?? '-'}</td>
                 <td className="px-4 py-2">{sources.find(s => s.code === duty.source)?.name || duty.source}</td>
                 <td className="px-4 py-2">
-                  {duty.isActive ? <span className="text-green-600 font-bold">SI</span> : <span className="text-red-600 font-bold">NO</span>}
+                  {duty.isActive ? <span className="text-green-600 font-bold">{t('usaDutiesManagement.yes')}</span> : <span className="text-red-600 font-bold">{t('usaDutiesManagement.no')}</span>}
                 </td>
                 <td className="px-4 py-2 space-x-2">
                   <button
                     className="text-indigo-600 hover:underline"
                     onClick={() => handleEdit(duty)}
-                  >Modifica</button>
+                  >{t('usaDutiesManagement.editAction')}</button>
                   <button
                     className="text-red-600 hover:underline"
                     onClick={() => duty._id && handleDelete(duty._id)}
-                  >Elimina</button>
+                  >{t('usaDutiesManagement.deleteAction')}</button>
                 </td>
               </tr>
             ))}
             {filteredDuties.length === 0 && (
               <tr>
-                <td colSpan={9} className="text-center py-6 text-gray-500">Nessun dazio trovato.</td>
+                <td colSpan={9} className="text-center py-6 text-gray-500">{t('usaDutiesManagement.noDutiesFound')}</td>
               </tr>
             )}
           </tbody>
@@ -269,6 +271,7 @@ interface DutyFormProps {
 }
 
 const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources }) => {
+  const { t } = useTranslation('admin');
   const [form, setForm] = useState<Partial<USDuty>>(duty || {
     hsCode: '',
     productDescription: '',
@@ -297,7 +300,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.hsCode || !form.productDescription || form.baseRate === undefined) {
-      setError('HS Code, descrizione e base rate sono obbligatori');
+      setError(t('usaDutiesManagement.validationError'));
       return;
     }
     setError(null);
@@ -311,11 +314,11 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
           className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
           onClick={onClose}
         >✖️</button>
-        <h3 className="text-lg font-semibold mb-4">{duty ? 'Modifica Dazio USA' : 'Nuovo Dazio USA'}</h3>
+        <h3 className="text-lg font-semibold mb-4">{duty ? t('usaDutiesManagement.editDutyTitle') : t('usaDutiesManagement.newDutyTitle')}</h3>
         {error && <div className="mb-2 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium">HS Code *</label>
+            <label className="block text-sm font-medium">{t('usaDutiesManagement.hsCodeLabel')} *</label>
             <input
               type="text"
               name="hsCode"
@@ -326,7 +329,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Descrizione *</label>
+            <label className="block text-sm font-medium">{t('usaDutiesManagement.descriptionLabel')} *</label>
             <input
               type="text"
               name="productDescription"
@@ -338,7 +341,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium">Base Rate (%) *</label>
+              <label className="block text-sm font-medium">{t('usaDutiesManagement.baseRateLabel')} (%) *</label>
               <input
                 type="number"
                 name="baseRate"
@@ -351,7 +354,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Section 301 (%)</label>
+              <label className="block text-sm font-medium">{t('usaDutiesManagement.section301Label')} (%)</label>
               <input
                 type="number"
                 name="section301Rate"
@@ -363,7 +366,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Section 232 (%)</label>
+              <label className="block text-sm font-medium">{t('usaDutiesManagement.section232Label')} (%)</label>
               <input
                 type="number"
                 name="section232Rate"
@@ -375,7 +378,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Section 201 (%)</label>
+              <label className="block text-sm font-medium">{t('usaDutiesManagement.section201Label')} (%)</label>
               <input
                 type="number"
                 name="section201Rate"
@@ -388,7 +391,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium">Data Inizio *</label>
+            <label className="block text-sm font-medium">{t('usaDutiesManagement.effectiveDateLabel')} *</label>
             <input
               type="date"
               name="effectiveDate"
@@ -399,7 +402,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Data Fine</label>
+            <label className="block text-sm font-medium">{t('usaDutiesManagement.expiryDateLabel')}</label>
             <input
               type="date"
               name="expiryDate"
@@ -409,7 +412,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Fonte *</label>
+            <label className="block text-sm font-medium">{t('usaDutiesManagement.sourceLabel')} *</label>
             <select
               name="source"
               value={form.source || 'MANUAL'}
@@ -423,7 +426,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Attivo</label>
+            <label className="block text-sm font-medium">{t('usaDutiesManagement.activeLabel')}</label>
             <input
               type="checkbox"
               name="isActive"
@@ -433,7 +436,7 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Note</label>
+            <label className="block text-sm font-medium">{t('usaDutiesManagement.notesLabel')}</label>
             <textarea
               name="notes"
               value={form.notes || ''}
@@ -447,11 +450,11 @@ const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources })
               type="button"
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
               onClick={onClose}
-            >Annulla</button>
+            >{t('usaDutiesManagement.cancelButton')}</button>
             <button
               type="submit"
               className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-            >Salva</button>
+            >{t('usaDutiesManagement.saveButton')}</button>
           </div>
         </form>
       </div>

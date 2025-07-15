@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { PricingResponse } from '../../types/pricing';
 
 interface PricingResultProps {
@@ -8,15 +9,16 @@ interface PricingResultProps {
 }
 
 export const PricingResult: React.FC<PricingResultProps> = ({ result, onBack, onRecalculate }) => {
+  const { t, i18n } = useTranslation('common');
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('it-IT', {
+    return new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : 'it-IT', {
       style: 'currency',
       currency: 'EUR',
     }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('it-IT', {
+    return new Date(dateString).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'it-IT', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -33,22 +35,22 @@ export const PricingResult: React.FC<PricingResultProps> = ({ result, onBack, on
           </svg>
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Calcolo Completato!
+          {t('pricingResult.calculationCompleted')}
         </h2>
         <p className="text-gray-600">
-          Prezzo calcolato il {formatDate(result.details.validity.from)}
+          {t('pricingResult.priceCalculatedOn', { date: formatDate(result.details.validity.from) })}
         </p>
       </div>
 
       {/* Prezzo Totale */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
         <div className="text-center">
-          <p className="text-sm font-medium text-blue-600 mb-1">Prezzo Totale</p>
+          <p className="text-sm font-medium text-blue-600 mb-1">{t('pricingResult.totalPrice')}</p>
           <p className="text-4xl font-bold text-blue-900">
             {formatCurrency(result.price)}
           </p>
           <p className="text-sm text-blue-600 mt-1">
-            Valido fino al {formatDate(result.details.validity.to)}
+            {t('pricingResult.validUntil', { date: formatDate(result.details.validity.to) })}
           </p>
         </div>
       </div>
@@ -57,29 +59,29 @@ export const PricingResult: React.FC<PricingResultProps> = ({ result, onBack, on
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">
-            📊 Breakdown dei Costi
+            {t('pricingResult.costBreakdown')}
           </h3>
         </div>
         <div className="p-6">
           <div className="space-y-4">
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-gray-700">Trasporto Base</span>
+              <span className="text-gray-700">{t('pricingResult.baseTransport')}</span>
               <span className="font-medium">{formatCurrency(result.breakdown.transport)}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-gray-700">Dazi e Tariffe</span>
+              <span className="text-gray-700">{t('pricingResult.dutiesAndTariffs')}</span>
               <span className="font-medium">{formatCurrency(result.breakdown.duties)}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-gray-700">Spese Doganali</span>
+              <span className="text-gray-700">{t('pricingResult.customsFees')}</span>
               <span className="font-medium">{formatCurrency(result.breakdown.fees)}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-gray-700">Assicurazione</span>
+              <span className="text-gray-700">{t('pricingResult.insurance')}</span>
               <span className="font-medium">{formatCurrency(result.breakdown.insurance)}</span>
             </div>
             <div className="flex justify-between items-center py-3 bg-gray-50 rounded-lg px-4">
-              <span className="font-semibold text-gray-900">TOTALE</span>
+              <span className="font-semibold text-gray-900">{t('pricingResult.total')}</span>
               <span className="font-bold text-lg text-blue-600">{formatCurrency(result.breakdown.total)}</span>
             </div>
           </div>
@@ -91,19 +93,19 @@ export const PricingResult: React.FC<PricingResultProps> = ({ result, onBack, on
         {/* Tempo di Transito */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            ⏱️ Tempo di Transito
+            ⏱️ {t('pricingResult.transitTime')}
           </h4>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-600">Stimato:</span>
-              <span className="font-medium">{result.details.transitTime.estimated} giorni</span>
+              <span className="text-gray-600">{t('pricingResult.estimated')}:</span>
+              <span className="font-medium">{result.details.transitTime.estimated} {t('pricingResult.days')}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Confidenza:</span>
+              <span className="text-gray-600">{t('pricingResult.confidence')}:</span>
               <span className="font-medium">{(result.details.transitTime.confidence * 100).toFixed(0)}%</span>
             </div>
             <div className="mt-3">
-              <p className="text-sm text-gray-600 mb-2">Fattori considerati:</p>
+              <p className="text-sm text-gray-600 mb-2">{t('pricingResult.consideredFactors')}:</p>
               <ul className="text-xs text-gray-500 space-y-1">
                 {result.details.transitTime.factors.map((factor, index) => (
                   <li key={index} className="flex items-center">
@@ -119,25 +121,24 @@ export const PricingResult: React.FC<PricingResultProps> = ({ result, onBack, on
         {/* Dazi Applicati */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            🏛️ Dazi e Tariffe
+            🏛️ {t('pricingResult.dutiesAndTariffs')}
           </h4>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600">Dazio Base:</span>
+              <span className="text-gray-600">{t('pricingResult.baseDuty')}:</span>
               <span className="font-medium">{formatCurrency(result.details.dutiesAndTariffs.baseDuty)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Tariffe Speciali:</span>
+              <span className="text-gray-600">{t('pricingResult.specialTariffs')}:</span>
               <span className="font-medium">{formatCurrency(result.details.dutiesAndTariffs.specialTariffs)}</span>
             </div>
             <div className="flex justify-between font-semibold">
-              <span className="text-gray-900">Totale Dazi:</span>
+              <span className="text-gray-900">{t('pricingResult.totalDuties')}:</span>
               <span className="text-blue-600">{formatCurrency(result.details.dutiesAndTariffs.totalDuties)}</span>
             </div>
-            
             {result.details.dutiesAndTariffs.appliedRates.length > 0 && (
               <div className="mt-3">
-                <p className="text-sm text-gray-600 mb-2">Tariffe applicate:</p>
+                <p className="text-sm text-gray-600 mb-2">{t('pricingResult.appliedTariffs')}:</p>
                 <ul className="text-xs text-gray-500 space-y-1">
                   {result.details.dutiesAndTariffs.appliedRates.map((rate, index) => (
                     <li key={index} className="flex items-center">
@@ -155,7 +156,7 @@ export const PricingResult: React.FC<PricingResultProps> = ({ result, onBack, on
       {/* Note e Informazioni */}
       {result.details.notes && result.details.notes.length > 0 && (
         <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-          <h4 className="text-sm font-medium text-blue-900 mb-2">📝 Note</h4>
+          <h4 className="text-sm font-medium text-blue-900 mb-2">📝 {t('pricingResult.notes')}</h4>
           <ul className="text-sm text-blue-800 space-y-1">
             {result.details.notes.map((note, index) => (
               <li key={index} className="flex items-start">
@@ -173,20 +174,20 @@ export const PricingResult: React.FC<PricingResultProps> = ({ result, onBack, on
           onClick={onBack}
           className="px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
         >
-          ← Nuovo Calcolo
+          ← {t('pricingResult.newCalculation')}
         </button>
         <button
           onClick={onRecalculate}
           className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
         >
-          🔄 Ricalcola
+          🔄 {t('pricingResult.recalculate')}
         </button>
       </div>
 
       {/* ID Richiesta */}
       <div className="text-center">
         <p className="text-xs text-gray-500">
-          ID Richiesta: {result.details.requestId}
+          {t('pricingResult.requestId', { id: result.details.requestId })}
         </p>
       </div>
     </div>

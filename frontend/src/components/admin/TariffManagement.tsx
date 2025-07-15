@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TariffForm } from './TariffForm';
 import { tariffService, TariffRate, TariffFilters } from '../../services/tariffService';
 
 export const TariffManagement: React.FC = () => {
+  const { t } = useTranslation('admin');
   const [tariffs, setTariffs] = useState<TariffRate[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -135,13 +137,13 @@ export const TariffManagement: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
-          Gestione Tariffe Doganali
+          {t('tariffManagement.title')}
         </h2>
         <button
           onClick={() => setShowForm(true)}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
         >
-          ➕ Nuova Tariffa
+          {t('tariffManagement.addTariffButton')}
         </button>
       </div>
 
@@ -174,11 +176,11 @@ export const TariffManagement: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ricerca
+              {t('tariffManagement.searchLabel')}
             </label>
             <input
               type="text"
-              placeholder="HS Code, Paese..."
+              placeholder={t('tariffManagement.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -187,14 +189,14 @@ export const TariffManagement: React.FC = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Paese
+              {t('tariffManagement.countryLabel')}
             </label>
             <select
               value={filterCountry}
               onChange={(e) => setFilterCountry(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Tutti i paesi</option>
+              <option value="">{t('tariffManagement.allCountries')}</option>
               {countries.map(country => (
                 <option key={country} value={country}>{country}</option>
               ))}
@@ -203,14 +205,14 @@ export const TariffManagement: React.FC = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fonte
+              {t('tariffManagement.sourceLabel')}
             </label>
             <select
               value={filterSource}
               onChange={(e) => setFilterSource(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Tutte le fonti</option>
+              <option value="">{t('tariffManagement.allSources')}</option>
               {sources.map(source => (
                 <option key={source} value={source}>{source}</option>
               ))}
@@ -226,7 +228,7 @@ export const TariffManagement: React.FC = () => {
               }}
               className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
             >
-              🔄 Reset Filtri
+              {t('tariffManagement.resetFiltersButton')}
             </button>
           </div>
         </div>
@@ -239,25 +241,25 @@ export const TariffManagement: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  HS Code
+                  {t('tariffManagement.hsCodeHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Origine → Destinazione
+                  {t('tariffManagement.originDestinationHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tariffa Base
+                  {t('tariffManagement.baseRateHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tariffa Speciale
+                  {t('tariffManagement.specialRateHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fonte
+                  {t('tariffManagement.sourceHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Stato
+                  {t('tariffManagement.statusHeader')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Azioni
+                  {t('tariffManagement.actionsHeader')}
                 </th>
               </tr>
             </thead>
@@ -292,7 +294,7 @@ export const TariffManagement: React.FC = () => {
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-red-100 text-red-800'
                     }`}>
-                      {tariff.isActive ? 'Attiva' : 'Inattiva'}
+                      {tariff.isActive ? t('tariffManagement.activeStatus') : t('tariffManagement.inactiveStatus')}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -300,13 +302,13 @@ export const TariffManagement: React.FC = () => {
                       onClick={() => handleEdit(tariff)}
                       className="text-indigo-600 hover:text-indigo-900 mr-3"
                     >
-                      ✏️ Modifica
+                      {t('tariffManagement.editAction')}
                     </button>
                     <button
                       onClick={() => handleDelete(tariff._id)}
                       className="text-red-600 hover:text-red-900"
                     >
-                      🗑️ Elimina
+                      {t('tariffManagement.deleteAction')}
                     </button>
                   </td>
                 </tr>
@@ -324,24 +326,24 @@ export const TariffManagement: React.FC = () => {
                 disabled={pagination.page === 1}
                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
               >
-                Precedente
+                {t('tariffManagement.previousPage')}
               </button>
               <button
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page === pagination.pages}
                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
               >
-                Successiva
+                {t('tariffManagement.nextPage')}
               </button>
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700">
-                  Mostrando <span className="font-medium">{(pagination.page - 1) * pagination.limit + 1}</span> a{' '}
-                  <span className="font-medium">
-                    {Math.min(pagination.page * pagination.limit, pagination.total)}
-                  </span>{' '}
-                  di <span className="font-medium">{pagination.total}</span> risultati
+                  {t('tariffManagement.showingResults', {
+                    start: (pagination.page - 1) * pagination.limit + 1,
+                    end: Math.min(pagination.page * pagination.limit, pagination.total),
+                    total: pagination.total
+                  })}
                 </p>
               </div>
               <div>

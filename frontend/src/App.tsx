@@ -1,9 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { PricingCalculator } from './components/business/PricingCalculator';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { LanguageSwitch } from './components/common/LanguageSwitch';
+import { useTranslation } from 'react-i18next';
 import './index.css';
 
 function App() {
+  const { t } = useTranslation();
+
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
@@ -23,14 +27,15 @@ function App() {
                   to="/" 
                   className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  Calcolatore
+                  {t('navigation.pricing')}
                 </Link>
                 <Link 
                   to="/admin" 
                   className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  Dashboard Admin
+                  {t('navigation.dashboard')}
                 </Link>
+                <LanguageSwitch />
               </div>
             </div>
           </div>

@@ -1,0 +1,85 @@
+{
+  "errors": {
+    "validation": {
+      "required": "Campo obbligatorio",
+      "invalid": "Valore non valido",
+      "minLength": "Minimo {{min}} caratteri",
+      "maxLength": "Massimo {{max}} caratteri",
+      "min": "Valore minimo: {{min}}",
+      "max": "Valore massimo: {{max}}",
+      "email": "Email non valida",
+      "url": "URL non valido",
+      "date": "Data non valida",
+      "number": "Numero non valido",
+      "integer": "Numero intero richiesto",
+      "positive": "Numero positivo richiesto",
+      "unique": "Valore già esistente",
+      "exists": "Elemento non trovato"
+    },
+    "auth": {
+      "unauthorized": "Non autorizzato",
+      "forbidden": "Accesso negato",
+      "invalidCredentials": "Credenziali non valide",
+      "tokenExpired": "Token scaduto",
+      "tokenInvalid": "Token non valido"
+    },
+    "database": {
+      "connection": "Errore di connessione al database",
+      "query": "Errore nella query del database",
+      "duplicate": "Elemento duplicato",
+      "notFound": "Elemento non trovato",
+      "constraint": "Violazione del vincolo del database"
+    },
+    "server": {
+      "internal": "Errore interno del server",
+      "timeout": "Timeout della richiesta",
+      "badRequest": "Richiesta non valida",
+      "notFound": "Risorsa non trovata",
+      "methodNotAllowed": "Metodo non consentito"
+    }
+  },
+  "messages": {
+    "success": {
+      "created": "Elemento creato con successo",
+      "updated": "Elemento aggiornato con successo",
+      "deleted": "Elemento eliminato con successo",
+      "retrieved": "Dati recuperati con successo"
+    },
+    "info": {
+      "noData": "Nessun dato disponibile",
+      "processing": "Elaborazione in corso",
+      "cached": "Dati dalla cache"
+    }
+  },
+  "validation": {
+    "shipping": {
+      "routeId": "ID rotta obbligatorio",
+      "originCountry": "Paese origine obbligatorio",
+      "destinationCountry": "Paese destinazione obbligatorio",
+      "transportType": "Tipo trasporto obbligatorio",
+      "baseTransitTime": "Tempo transito base obbligatorio",
+      "baseCost": "Costo base obbligatorio"
+    },
+    "pricing": {
+      "origin": "Origine obbligatoria",
+      "destination": "Destinazione obbligatoria",
+      "weight": "Peso obbligatorio",
+      "volume": "Volume obbligatorio",
+      "hsCode": "Codice HS obbligatorio",
+      "value": "Valore obbligatorio"
+    },
+    "tariff": {
+      "originCountry": "Paese origine obbligatorio",
+      "destinationCountry": "Paese destinazione obbligatorio",
+      "hsCode": "Codice HS obbligatorio",
+      "baseRate": "Tariffa base obbligatoria",
+      "effectiveDate": "Data effettiva obbligatoria"
+    },
+    "usaDuty": {
+      "hsCode": "Codice HS obbligatorio",
+      "productDescription": "Descrizione prodotto obbligatoria",
+      "baseRate": "Tariffa base obbligatoria",
+      "effectiveDate": "Data effettiva obbligatoria"
+    }
+  }
+} 
