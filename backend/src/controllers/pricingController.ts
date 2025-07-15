@@ -136,7 +136,7 @@ export const calculatePrice = async (req: Request, res: Response): Promise<void>
     const requestData = req.body;
     
     // Handle both old and new request formats
-    let pricingRequest: any;
+    let pricingRequest: PricingRequest;
     
     if (requestData.cargo && requestData.origin && requestData.destination) {
       // New format

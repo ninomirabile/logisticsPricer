@@ -23,16 +23,17 @@ export const USDutiesManagement: React.FC = () => {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    getUSDuties({ search: searchTerm, section: filterSection, limit: 100 })
-      .then(res => {
-        setDuties(res.data);
+    
+    getUSDuties({ search: searchTerm, section: filterSection })
+      .then(data => {
+        setDuties(data);
         setLoading(false);
       })
       .catch(() => {
         setError(t('usaDutiesManagement.loadError'));
         setLoading(false);
       });
-  }, [searchTerm, filterSection, refresh]);
+  }, [searchTerm, filterSection, refresh, t]);
 
   const filteredDuties = duties; // Filtering is now handled by API
 

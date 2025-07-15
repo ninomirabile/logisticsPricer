@@ -46,7 +46,7 @@ export const getLanguage = (req: Request): string => {
 };
 
 // Helper function to translate with language context
-export const t = (key: string, language: string = 'en', options?: any): string => {
+export const t = (key: string, language: string = 'en', options?: Record<string, unknown>): string => {
   const result = i18next.t(key, { lng: language, ...options });
   return typeof result === 'string' ? result : String(result);
 };
