@@ -25,8 +25,8 @@ export const USDutiesManagement: React.FC = () => {
     setError(null);
     
     getUSDuties({ search: searchTerm, section: filterSection })
-      .then(data => {
-        setDuties(data);
+      .then(response => {
+        setDuties(response.data);
         setLoading(false);
       })
       .catch(() => {

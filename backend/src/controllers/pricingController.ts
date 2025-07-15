@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import PricingRequest from '../models/PricingRequest';
+import PricingRequest, { IPricingRequest } from '../models/PricingRequest';
 import PricingResponse from '../models/PricingResponse';
 import DutyCalculation from '../models/DutyCalculation';
 import TariffRate from '../models/TariffRate';
@@ -136,7 +136,7 @@ export const calculatePrice = async (req: Request, res: Response): Promise<void>
     const requestData = req.body;
     
     // Handle both old and new request formats
-    let pricingRequest: PricingRequest;
+    let pricingRequest: IPricingRequest;
     
     if (requestData.cargo && requestData.origin && requestData.destination) {
       // New format
