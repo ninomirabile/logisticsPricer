@@ -11,7 +11,7 @@ describe('PricingForm', () => {
   it('renders form fields correctly', () => {
     render(<PricingForm onSubmit={mockOnSubmit} isLoading={false} />);
 
-    // Check if main form fields are rendered
+    // Check if main form fields are rendered with translated text
     expect(screen.getByText(/Paese di Origine/)).toBeInTheDocument();
     expect(screen.getByText(/Paese di Destinazione/)).toBeInTheDocument();
     expect(screen.getByText(/Peso \(kg\)/)).toBeInTheDocument();
@@ -22,7 +22,7 @@ describe('PricingForm', () => {
   it('shows loading state when isLoading is true', () => {
     render(<PricingForm onSubmit={mockOnSubmit} isLoading={true} />);
     
-    const submitButton = screen.getByRole('button', { name: /calcolando/i });
+    const submitButton = screen.getByRole('button', { name: /Calcolando/ });
     expect(submitButton).toBeDisabled();
   });
 }); 

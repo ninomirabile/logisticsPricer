@@ -42,6 +42,18 @@ i18n
     react: {
       useSuspense: false,
     },
+
+    // Add better error handling for missing keys
+    saveMissing: process.env.NODE_ENV === 'development',
+    missingKeyHandler: (lng, ns, key, fallbackValue) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`Missing translation key: ${key} in namespace: ${ns} for language: ${lng}`);
+      }
+    },
+
+    // Ensure proper loading
+    load: 'languageOnly',
+    preload: ['en', 'it'],
   });
 
 export default i18n; 
