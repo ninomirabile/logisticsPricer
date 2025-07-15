@@ -248,24 +248,23 @@ main() {
             print_status "Stopping MongoDB only..."
             stop_mongodb
             ;;
-        "help"|"-h"|"--help")
-            echo "Usage: $0 [command]"
-            echo ""
-            echo "Commands:"
-            echo "  stop     Stop all services (default)"
-            echo "  status   Show status of all services"
-            echo "  force    Force stop all services"
-            echo "  mongodb  Stop MongoDB only"
-            echo "  help     Show this help message"
-            echo ""
-            echo "Examples:"
-            echo "  $0        # Stop all services"
-            echo "  $0 status # Check service status"
-            echo "  $0 force  # Force stop everything"
+        "all")
+            print_status "Stopping ALL services including MongoDB..."
+            stop_frontend
+            stop_backend
+            stop_mongodb
+            cleanup
+            print_success "All services including MongoDB stopped!"
             ;;
         *)
-            print_error "Unknown command: $1"
-            echo "Use '$0 help' for usage information"
+            echo "Usage: $0 {stop|status|force|mongodb|all}"
+            echo ""
+            echo "Commands:"
+            echo "  stop     - Stop frontend and backend (default)"
+            echo "  status   - Show status of all services"
+            echo "  force    - Force stop frontend and backend"
+            echo "  mongodb  - Stop MongoDB only"
+            echo "  all      - Stop frontend, backend, and MongoDB"
             exit 1
             ;;
     esac

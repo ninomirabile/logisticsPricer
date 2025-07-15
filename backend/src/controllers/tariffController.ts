@@ -263,3 +263,300 @@ export const updateTariffRates = async (req: Request, res: Response): Promise<vo
     });
   }
 }; 
+
+// Get all tariffs with optional filtering and pagination
+export const getAllTariffs = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { 
+      page = 1, 
+      limit = 10, 
+      sortBy = 'createdAt', 
+      sortOrder = 'desc', 
+      search = '',
+      originCountry,
+      destinationCountry,
+      source,
+      isActive
+    } = req.query;
+    
+    const query: Record<string, unknown> = {};
+    
+    // Add search functionality
+    if (search) {
+      query.$or = [
+        { originCountry: { $regex: search as string, $options: 'i' } },
+        { destinationCountry: { $regex: search as string, $options: 'i' } },
+        { hsCode: { $regex: search as string, $options: 'i' } }
+      ];
+    }
+    
+    if (originCountry) query.originCountry = originCountry;
+    if (destinationCountry) query.destinationCountry = destinationCountry;
+    if (source) query.source = source;
+    if (isActive !== undefined) query.isActive = isActive === 'true';
+    
+    const sortOptions: Record<string, 1 | -1> = {};
+    sortOptions[sortBy as string] = sortOrder === 'desc' ? -1 : 1;
+    
+    const skip = (Number(page) - 1) * Number(limit);
+    
+    const tariffs = await TariffRate.find(query)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(Number(limit));
+    
+    const total = await TariffRate.countDocuments(query);
+    
+    res.json({
+      success: true,
+      data: tariffs,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching tariffs:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to fetch tariffs' }
+    });
+  }
+};
+
+// Get a single tariff by ID
+export const getTariffById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    
+    const tariff = await TariffRate.findById(id);
+    
+    if (!tariff) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Tariff not found' }
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: tariff
+    });
+  } catch (error) {
+    console.error('Error fetching tariff:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to fetch tariff' }
+    });
+  }
+};
+
+// Create a new tariff
+export const createTariff = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const tariffData = req.body;
+    
+    // Validate required fields
+    if (!tariffData.originCountry || !tariffData.destinationCountry || !tariffData.hsCode || tariffData.baseRate === undefined) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Origin country, destination country, HS code, and base rate are required' }
+      });
+      return;
+    }
+
+    // Check if tariff already exists for this combination
+    const existingTariff = await TariffRate.findOne({ 
+      originCountry: tariffData.originCountry,
+      destinationCountry: tariffData.destinationCountry,
+      hsCode: tariffData.hsCode,
+      isActive: true 
+    });
+
+    if (existingTariff) {
+      res.status(409).json({
+        success: false,
+        error: { message: 'A tariff already exists for this combination' }
+      });
+      return;
+    }
+
+    const newTariff = new TariffRate(tariffData);
+    const savedTariff = await newTariff.save();
+
+    res.status(201).json({
+      success: true,
+      data: savedTariff,
+      message: 'Tariff created successfully'
+    });
+  } catch (error) {
+    console.error('Error creating tariff:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to create tariff' }
+    });
+  }
+};
+
+// Update an existing tariff
+export const updateTariff = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    const tariff = await TariffRate.findById(id);
+    
+    if (!tariff) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Tariff not found' }
+      });
+      return;
+    }
+
+    // Update the tariff
+    Object.assign(tariff, updateData);
+    const updatedTariff = await tariff.save();
+
+    res.json({
+      success: true,
+      data: updatedTariff,
+      message: 'Tariff updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating tariff:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to update tariff' }
+    });
+  }
+};
+
+// Delete a tariff
+export const deleteTariff = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    
+    const tariff = await TariffRate.findById(id);
+    
+    if (!tariff) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Tariff not found' }
+      });
+      return;
+    }
+
+    await TariffRate.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'Tariff deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting tariff:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to delete tariff' }
+    });
+  }
+};
+
+// Get tariff statistics
+export const getTariffStats = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const stats = await TariffRate.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalTariffs: { $sum: 1 },
+          activeTariffs: {
+            $sum: { $cond: ['$isActive', 1, 0] }
+          }
+        }
+      }
+    ]);
+
+    const countryStats = await TariffRate.aggregate([
+      {
+        $group: {
+          _id: '$originCountry',
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
+    const sourceStats = await TariffRate.aggregate([
+      {
+        $group: {
+          _id: '$source',
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+
+    const topHSCodes = await TariffRate.aggregate([
+      {
+        $group: {
+          _id: '$hsCode',
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        overview: stats[0] || {
+          totalTariffs: 0,
+          activeTariffs: 0
+        },
+        countries: countryStats.map(item => ({ country: item._id, count: item.count })),
+        sources: sourceStats.map(item => ({ source: item._id, count: item.count })),
+        topHSCodes: topHSCodes.map(item => ({ hsCode: item._id, count: item.count }))
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching tariff stats:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to fetch tariff statistics' }
+    });
+  }
+};
+
+// Search tariffs by HS code
+export const searchTariffsByHSCode = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { hsCode } = req.params;
+    
+    const tariffs = await TariffRate.find({
+      hsCode: { $regex: hsCode, $options: 'i' },
+      isActive: true,
+      effectiveDate: { $lte: new Date() },
+      $or: [
+        { expiryDate: { $exists: false } },
+        { expiryDate: { $gt: new Date() } }
+      ]
+    }).sort({ effectiveDate: -1 });
+    
+    res.json({
+      success: true,
+      data: tariffs
+    });
+  } catch (error) {
+    console.error('Error searching tariffs:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to search tariffs' }
+    });
+  }
+}; 

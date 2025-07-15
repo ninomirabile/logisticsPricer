@@ -4,6 +4,7 @@ import tariffRoutes from './tariffs';
 import shippingRoutes from './shipping';
 import authRoutes from './auth';
 import userRoutes from './users';
+import usaDutiesRoutes from './usaDuties';
 
 const router = Router();
 
@@ -20,12 +21,14 @@ router.get('/', (req, res) => {
       shipping: '/shipping',
       auth: '/auth',
       users: '/users',
+      'usa-duties': '/usa-duties',
     },
     features: {
       'Advanced Pricing': 'Complete pricing with duties and tariffs',
       'Tariff Management': 'HS code lookup and duty calculations',
       'International Shipping': 'Route validation and documentation',
-      'Duty Calculation': 'Real-time duty and tariff calculations'
+      'Duty Calculation': 'Real-time duty and tariff calculations',
+      'USA Duties Management': 'US import duties and compliance'
     }
   });
 });
@@ -36,5 +39,6 @@ router.use('/tariffs', tariffRoutes);
 router.use('/shipping', shippingRoutes);
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/usa-duties', usaDutiesRoutes);
 
 export default router; 

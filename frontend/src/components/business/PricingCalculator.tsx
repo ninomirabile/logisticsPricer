@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PricingForm } from './PricingForm';
 import { PricingResult } from './PricingResult';
 import { PricingRequest, PricingResponse } from '../../types/pricing';
-import { calculatePrice } from '../../services/pricingService';
+import { pricingService } from '../../services/pricingService';
 
 export const PricingCalculator: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,8 +15,15 @@ export const PricingCalculator: React.FC = () => {
     setResult(null);
 
     try {
-      const response = await calculatePrice(request);
-      setResult(response);
+      const response = await pricingService.calculatePrice(request as unknown as Record<string, unknown>);
+      // Convert the service response to the expected type
+      const convertedResult: PricingResponse = {
+        success: response.success,
+        price: response.price,
+        breakdown: response.breakdown,
+        details: response.details
+      };
+      setResult(convertedResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Errore durante il calcolo');
     } finally {

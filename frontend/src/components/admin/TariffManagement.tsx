@@ -1,74 +1,62 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { TariffForm } from './TariffForm';
-
-interface TariffRate {
-  _id: string;
-  originCountry: string;
-  destinationCountry: string;
-  hsCode: string;
-  baseRate: number;
-  specialRate?: number;
-  effectiveDate: string;
-  expiryDate?: string;
-  source: string;
-  isActive: boolean;
-  notes?: string;
-}
+import { tariffService, TariffRate, TariffFilters } from '../../services/tariffService';
 
 export const TariffManagement: React.FC = () => {
   const [tariffs, setTariffs] = useState<TariffRate[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTariff, setEditingTariff] = useState<TariffRate | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCountry, setFilterCountry] = useState('');
   const [filterSource, setFilterSource] = useState('');
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 0
+  });
 
-  // Mock data - in real app this would come from API
-  useEffect(() => {
-    const mockTariffs: TariffRate[] = [
-      {
-        _id: '1',
-        originCountry: 'IT',
-        destinationCountry: 'US',
-        hsCode: '8471.30.01',
-        baseRate: 5.5,
-        specialRate: 2.5,
-        effectiveDate: '2024-01-01',
-        source: 'WTO',
-        isActive: true,
-        notes: 'Tariffa standard per computer'
-      },
-      {
-        _id: '2',
-        originCountry: 'DE',
-        destinationCountry: 'US',
-        hsCode: '8708.99.80',
-        baseRate: 3.2,
-        effectiveDate: '2024-01-01',
-        source: 'TRADE_AGREEMENT',
-        isActive: true,
-        notes: 'Parti auto - accordo commerciale'
-      },
-      {
-        _id: '3',
-        originCountry: 'CN',
-        destinationCountry: 'US',
-        hsCode: '8517.13.00',
-        baseRate: 8.5,
-        specialRate: 15.0,
-        effectiveDate: '2024-01-01',
-        source: 'CUSTOMS_API',
-        isActive: true,
-        notes: 'Smartphone - tariffa anti-dumping'
-      }
-    ];
-    
-    setTimeout(() => {
-      setTariffs(mockTariffs);
+  // Load tariffs from API
+  const loadTariffs = useCallback(async (filters: TariffFilters = {}) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const filterParams: TariffFilters = {
+        page: pagination.page,
+        limit: pagination.limit,
+        ...filters
+      };
+      
+      if (searchTerm) filterParams.search = searchTerm;
+      if (filterCountry) filterParams.originCountry = filterCountry;
+      if (filterSource) filterParams.source = filterSource;
+      
+      const response = await tariffService.getTariffs(filterParams);
+      
+      setTariffs(response.data);
+      setPagination(response.pagination);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Errore nel caricamento delle tariffe');
+      console.error('Error loading tariffs:', err);
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
+    }
+  }, [pagination.page, pagination.limit, searchTerm, filterCountry, filterSource]);
+
+  // Initial load
+  useEffect(() => {
+    loadTariffs();
+  }, [loadTariffs]);
+
+  // Reload when filters change
+  useEffect(() => {
+    if (searchTerm || filterCountry || filterSource) {
+      loadTariffs();
+    }
+  }, [searchTerm, filterCountry, filterSource, loadTariffs]);
 
   const filteredTariffs = tariffs.filter(tariff => {
     const matchesSearch = 
@@ -92,34 +80,50 @@ export const TariffManagement: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Sei sicuro di voler eliminare questa tariffa?')) {
-      setTariffs(tariffs.filter(t => t._id !== id));
+      try {
+        await tariffService.deleteTariff(id);
+        setTariffs(tariffs.filter(t => t._id !== id));
+        // Reload to update pagination
+        loadTariffs();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Errore nell\'eliminazione della tariffa');
+        console.error('Error deleting tariff:', err);
+      }
     }
   };
 
-  const handleFormSubmit = (tariffData: Partial<TariffRate>) => {
-    if (editingTariff) {
-      // Update existing tariff
-      setTariffs(tariffs.map(t => 
-        t._id === editingTariff._id 
-          ? { ...t, ...tariffData }
-          : t
-      ));
-      setEditingTariff(null);
-    } else {
-      // Add new tariff
-      const newTariff: TariffRate = {
-        _id: Date.now().toString(),
-        ...tariffData as TariffRate
-      };
-      setTariffs([...tariffs, newTariff]);
+  const handleFormSubmit = async (tariffData: Partial<TariffRate>) => {
+    try {
+      if (editingTariff) {
+        // Update existing tariff
+        const updatedTariff = await tariffService.updateTariff(editingTariff._id, tariffData);
+        setTariffs(tariffs.map(t => 
+          t._id === editingTariff._id ? updatedTariff : t
+        ));
+        setEditingTariff(null);
+      } else {
+        // Add new tariff
+        const newTariff = await tariffService.createTariff(tariffData as Omit<TariffRate, '_id' | 'createdAt' | 'updatedAt'>);
+        setTariffs([newTariff, ...tariffs]);
+      }
+      setShowForm(false);
+      // Reload to update pagination
+      loadTariffs();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Errore nel salvataggio della tariffa');
+      console.error('Error saving tariff:', err);
     }
-    setShowForm(false);
   };
 
-  const countries = ['IT', 'US', 'DE', 'CN', 'FR', 'GB', 'JP', 'KR'];
-  const sources = ['WTO', 'CUSTOMS_API', 'MANUAL', 'TRADE_AGREEMENT'];
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+    loadTariffs({ page: newPage });
+  };
 
-  if (loading) {
+  const countries = tariffService.getAvailableCountries();
+  const sources = tariffService.getAvailableSources();
+
+  if (loading && tariffs.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -140,6 +144,30 @@ export const TariffManagement: React.FC = () => {
           ➕ Nuova Tariffa
         </button>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm">{error}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button
+                onClick={() => setError(null)}
+                className="text-red-400 hover:text-red-600"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
@@ -198,7 +226,7 @@ export const TariffManagement: React.FC = () => {
               }}
               className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
             >
-              🔄 Reset
+              🔄 Reset Filtri
             </button>
           </div>
         </div>
@@ -210,28 +238,25 @@ export const TariffManagement: React.FC = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   HS Code
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Origine
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Origine → Destinazione
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Destinazione
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Tariffa Base
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Tariffa Speciale
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Fonte
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stato
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Azioni
                 </th>
               </tr>
@@ -239,32 +264,29 @@ export const TariffManagement: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredTariffs.map((tariff) => (
                 <tr key={tariff._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {tariff.hsCode}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {tariff.originCountry}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {tariff.originCountry} → {tariff.destinationCountry}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {tariff.destinationCountry}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {tariff.baseRate}%
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {tariff.specialRate ? `${tariff.specialRate}%` : '-'}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       tariff.source === 'WTO' ? 'bg-blue-100 text-blue-800' :
-                      tariff.source === 'CUSTOMS_API' ? 'bg-green-100 text-green-800' :
-                      tariff.source === 'TRADE_AGREEMENT' ? 'bg-purple-100 text-purple-800' :
+                      tariff.source === 'TRADE_AGREEMENT' ? 'bg-green-100 text-green-800' :
+                      tariff.source === 'CUSTOMS_API' ? 'bg-purple-100 text-purple-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
                       {tariff.source}
                     </span>
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       tariff.isActive 
                         ? 'bg-green-100 text-green-800' 
@@ -273,36 +295,78 @@ export const TariffManagement: React.FC = () => {
                       {tariff.isActive ? 'Attiva' : 'Inattiva'}
                     </span>
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex flex-col space-y-1">
-                      <button
-                        onClick={() => handleEdit(tariff)}
-                        className="text-indigo-600 hover:text-indigo-900 text-xs"
-                      >
-                        ✏️ Modifica
-                      </button>
-                      <button
-                        onClick={() => handleDelete(tariff._id)}
-                        className="text-red-600 hover:text-red-900 text-xs"
-                      >
-                        🗑️ Elimina
-                      </button>
-                    </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => handleEdit(tariff)}
+                      className="text-indigo-600 hover:text-indigo-900 mr-3"
+                    >
+                      ✏️ Modifica
+                    </button>
+                    <button
+                      onClick={() => handleDelete(tariff._id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      🗑️ Elimina
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        
-        {filteredTariffs.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">Nessuna tariffa trovata</p>
+
+        {/* Pagination */}
+        {pagination.pages > 1 && (
+          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <button
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={pagination.page === 1}
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+              >
+                Precedente
+              </button>
+              <button
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={pagination.page === pagination.pages}
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+              >
+                Successiva
+              </button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Mostrando <span className="font-medium">{(pagination.page - 1) * pagination.limit + 1}</span> a{' '}
+                  <span className="font-medium">
+                    {Math.min(pagination.page * pagination.limit, pagination.total)}
+                  </span>{' '}
+                  di <span className="font-medium">{pagination.total}</span> risultati
+                </p>
+              </div>
+              <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                  {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        page === pagination.page
+                          ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                          : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Tariff Form Modal */}
+      {/* Form Modal */}
       {showForm && (
         <TariffForm
           tariff={editingTariff}

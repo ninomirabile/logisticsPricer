@@ -283,3 +283,349 @@ export const calculatePrice = async (req: Request, res: Response): Promise<void>
     });
   }
 }; 
+
+// Get all pricing requests with optional filtering and pagination
+export const getAllPricingRequests = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { 
+      page = 1, 
+      limit = 10, 
+      sortBy = 'createdAt', 
+      sortOrder = 'desc', 
+      search = '',
+      status,
+      transportType,
+      originCountry,
+      destinationCountry
+    } = req.query;
+    
+    const query: Record<string, unknown> = {};
+    
+    // Add search functionality
+    if (search) {
+      query.$or = [
+        { 'origin.city': { $regex: search as string, $options: 'i' } },
+        { 'destination.city': { $regex: search as string, $options: 'i' } },
+        { 'cargo.productDescription': { $regex: search as string, $options: 'i' } },
+        { 'cargo.hsCode': { $regex: search as string, $options: 'i' } }
+      ];
+    }
+    
+    if (status) query.status = status;
+    if (transportType) query['transport.type'] = transportType;
+    if (originCountry) query['origin.country'] = originCountry;
+    if (destinationCountry) query['destination.country'] = destinationCountry;
+    
+    const sortOptions: Record<string, 1 | -1> = {};
+    sortOptions[sortBy as string] = sortOrder === 'desc' ? -1 : 1;
+    
+    const skip = (Number(page) - 1) * Number(limit);
+    
+    const requests = await PricingRequest.find(query)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(Number(limit));
+    
+    const total = await PricingRequest.countDocuments(query);
+    
+    res.json({
+      success: true,
+      data: requests,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching pricing requests:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to fetch pricing requests' }
+    });
+  }
+};
+
+// Get a single pricing request by ID
+export const getPricingRequestById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    
+    const request = await PricingRequest.findById(id);
+    
+    if (!request) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Pricing request not found' }
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: request
+    });
+  } catch (error) {
+    console.error('Error fetching pricing request:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to fetch pricing request' }
+    });
+  }
+};
+
+// Create a new pricing request
+export const createPricingRequest = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const requestData = req.body;
+    
+    // Validate required fields
+    if (!requestData.origin || !requestData.destination || !requestData.cargo || !requestData.transport) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Origin, destination, cargo, and transport details are required' }
+      });
+      return;
+    }
+
+    const newRequest = new PricingRequest(requestData);
+    const savedRequest = await newRequest.save();
+
+    res.status(201).json({
+      success: true,
+      data: savedRequest,
+      message: 'Pricing request created successfully'
+    });
+  } catch (error) {
+    console.error('Error creating pricing request:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to create pricing request' }
+    });
+  }
+};
+
+// Update an existing pricing request
+export const updatePricingRequest = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    const request = await PricingRequest.findById(id);
+    
+    if (!request) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Pricing request not found' }
+      });
+      return;
+    }
+
+    // Update the request
+    Object.assign(request, updateData);
+    const updatedRequest = await request.save();
+
+    res.json({
+      success: true,
+      data: updatedRequest,
+      message: 'Pricing request updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating pricing request:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to update pricing request' }
+    });
+  }
+};
+
+// Delete a pricing request
+export const deletePricingRequest = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    
+    const request = await PricingRequest.findById(id);
+    
+    if (!request) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Pricing request not found' }
+      });
+      return;
+    }
+
+    await PricingRequest.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'Pricing request deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting pricing request:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to delete pricing request' }
+    });
+  }
+};
+
+// Get pricing statistics
+export const getPricingStats = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const stats = await PricingRequest.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRequests: { $sum: 1 },
+          pendingRequests: {
+            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
+          },
+          calculatedRequests: {
+            $sum: { $cond: [{ $eq: ['$status', 'calculated'] }, 1, 0] }
+          },
+          expiredRequests: {
+            $sum: { $cond: [{ $eq: ['$status', 'expired'] }, 1, 0] }
+          }
+        }
+      }
+    ]);
+
+    const transportTypeStats = await PricingRequest.aggregate([
+      {
+        $group: {
+          _id: '$transport.type',
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+
+    const countryStats = await PricingRequest.aggregate([
+      {
+        $group: {
+          _id: '$origin.country',
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
+    const avgValues = await PricingRequest.aggregate([
+      {
+        $group: {
+          _id: null,
+          avgCargoValue: { $avg: '$cargo.value' },
+          avgWeight: { $avg: '$cargo.weight' },
+          avgVolume: { $avg: '$cargo.volume' }
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        overview: stats[0] || {
+          totalRequests: 0,
+          pendingRequests: 0,
+          calculatedRequests: 0,
+          expiredRequests: 0
+        },
+        transportTypes: transportTypeStats.map(item => ({ type: item._id, count: item.count })),
+        topCountries: countryStats.map(item => ({ country: item._id, count: item.count })),
+        averages: avgValues[0] || {
+          avgCargoValue: 0,
+          avgWeight: 0,
+          avgVolume: 0
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching pricing stats:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to fetch pricing statistics' }
+    });
+  }
+};
+
+// Get all pricing responses
+export const getAllPricingResponses = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { 
+      page = 1, 
+      limit = 10, 
+      sortBy = 'calculationDate', 
+      sortOrder = 'desc',
+      minCost,
+      maxCost
+    } = req.query;
+    
+    const query: Record<string, unknown> = {};
+    
+    if (minCost || maxCost) {
+      const totalCost: Record<string, number> = {};
+      if (minCost) totalCost["$gte"] = Number(minCost);
+      if (maxCost) totalCost["$lte"] = Number(maxCost);
+      query.totalCost = totalCost;
+    }
+    
+    const sortOptions: Record<string, 1 | -1> = {};
+    sortOptions[sortBy as string] = sortOrder === 'desc' ? -1 : 1;
+    
+    const skip = (Number(page) - 1) * Number(limit);
+    
+    const responses = await PricingResponse.find(query)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(Number(limit));
+    
+    const total = await PricingResponse.countDocuments(query);
+    
+    res.json({
+      success: true,
+      data: responses,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching pricing responses:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to fetch pricing responses' }
+    });
+  }
+};
+
+// Get a single pricing response by ID
+export const getPricingResponseById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    
+    const response = await PricingResponse.findById(id);
+    
+    if (!response) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Pricing response not found' }
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: response
+    });
+  } catch (error) {
+    console.error('Error fetching pricing response:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Failed to fetch pricing response' }
+    });
+  }
+}; 

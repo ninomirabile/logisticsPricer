@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { pricingService, PricingRequest, PricingFilters } from '../../services/pricingService';
+import { shippingService, ShippingRoute, ShippingRouteFilters } from '../../services/shippingService';
 
-export const PricingManagement: React.FC = () => {
-  const [requests, setRequests] = useState<PricingRequest[]>([]);
-  const [loading, setLoading] = useState(false);
+export const ShippingRouteManagement: React.FC = () => {
+  const [routes, setRoutes] = useState<ShippingRoute[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [editingRequest, setEditingRequest] = useState<PricingRequest | null>(null);
+  const [editingRoute, setEditingRoute] = useState<ShippingRoute | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
+  const [filterOriginCountry, setFilterOriginCountry] = useState('');
+  const [filterDestinationCountry, setFilterDestinationCountry] = useState('');
   const [filterTransportType, setFilterTransportType] = useState('');
+  const [filterIsActive, setFilterIsActive] = useState('');
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -17,96 +19,101 @@ export const PricingManagement: React.FC = () => {
     pages: 0
   });
 
-  // Load pricing requests from API
-  const loadRequests = useCallback(async (filters: PricingFilters = {}) => {
+  // Load shipping routes from API
+  const loadRoutes = useCallback(async (filters: ShippingRouteFilters = {}) => {
     try {
       setLoading(true);
       setError(null);
       
-      const filterParams: PricingFilters = {
+      const filterParams: ShippingRouteFilters = {
         page: pagination.page,
         limit: pagination.limit,
         ...filters
       };
       
       if (searchTerm) filterParams.search = searchTerm;
-      if (filterStatus) filterParams.status = filterStatus;
+      if (filterOriginCountry) filterParams.originCountry = filterOriginCountry;
+      if (filterDestinationCountry) filterParams.destinationCountry = filterDestinationCountry;
       if (filterTransportType) filterParams.transportType = filterTransportType;
+      if (filterIsActive) filterParams.isActive = filterIsActive === 'true';
       
-      const response = await pricingService.getPricingRequests(filterParams);
+      const response = await shippingService.getShippingRoutes(filterParams);
       
-      setRequests(response.data);
+      setRoutes(response.data);
       setPagination(response.pagination);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Errore nel caricamento delle richieste di pricing');
-      console.error('Error loading pricing requests:', err);
+      setError(err instanceof Error ? err.message : 'Errore nel caricamento delle rotte di trasporto');
+      console.error('Error loading shipping routes:', err);
     } finally {
       setLoading(false);
     }
-  }, [pagination.page, pagination.limit, searchTerm, filterStatus, filterTransportType]);
+  }, [pagination.page, pagination.limit, searchTerm, filterOriginCountry, filterDestinationCountry, filterTransportType, filterIsActive]);
 
   // Initial load
   useEffect(() => {
-    loadRequests();
-  }, [loadRequests]);
+    loadRoutes();
+  }, [loadRoutes]);
 
   // Reload when filters change
   useEffect(() => {
-    if (searchTerm || filterStatus || filterTransportType) {
-      loadRequests();
-    }
-  }, [searchTerm, filterStatus, filterTransportType, loadRequests]);
+    const timeoutId = setTimeout(() => {
+      loadRoutes();
+    }, 500); // Debounce search
 
-  const handleEdit = (request: PricingRequest) => {
-    setEditingRequest(request);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, filterOriginCountry, filterDestinationCountry, filterTransportType, filterIsActive, loadRoutes]);
+
+  const handleEdit = (route: ShippingRoute) => {
+    setEditingRoute(route);
     setShowForm(true);
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Sei sicuro di voler eliminare questa richiesta di pricing?')) {
+    if (window.confirm('Sei sicuro di voler eliminare questa rotta di trasporto?')) {
       try {
-        await pricingService.deletePricingRequest(id);
-        setRequests(requests.filter(r => r._id !== id));
+        await shippingService.deleteShippingRoute(id);
+        setRoutes(routes.filter(r => r._id !== id));
         // Reload to update pagination
-        loadRequests();
+        loadRoutes();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Errore nell\'eliminazione della richiesta');
-        console.error('Error deleting pricing request:', err);
+        setError(err instanceof Error ? err.message : 'Errore nell\'eliminazione della rotta');
+        console.error('Error deleting shipping route:', err);
       }
     }
   };
 
-  const handleFormSubmit = async (requestData: Partial<PricingRequest>) => {
+  const handleFormSubmit = async (routeData: Partial<ShippingRoute>) => {
     try {
-      if (editingRequest) {
-        // Update existing request
-        const updatedRequest = await pricingService.updatePricingRequest(editingRequest._id!, requestData);
-        setRequests(requests.map(r => 
-          r._id === editingRequest._id ? updatedRequest : r
+      if (editingRoute) {
+        // Update existing route
+        const updatedRoute = await shippingService.updateShippingRoute(editingRoute._id!, routeData);
+        setRoutes(routes.map(r => 
+          r._id === editingRoute._id ? updatedRoute : r
         ));
-        setEditingRequest(null);
+        setEditingRoute(null);
       } else {
-        // Add new request
-        const newRequest = await pricingService.createPricingRequest(requestData as Omit<PricingRequest, '_id' | 'createdAt' | 'updatedAt'>);
-        setRequests([newRequest, ...requests]);
+        // Add new route
+        const newRoute = await shippingService.createShippingRoute(routeData as Omit<ShippingRoute, '_id' | 'createdAt' | 'updatedAt'>);
+        setRoutes([newRoute, ...routes]);
       }
       setShowForm(false);
       // Reload to update pagination
-      loadRequests();
+      loadRoutes();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Errore nel salvataggio della richiesta');
-      console.error('Error saving pricing request:', err);
+      setError(err instanceof Error ? err.message : 'Errore nel salvataggio della rotta');
+      console.error('Error saving shipping route:', err);
     }
   };
 
   const handlePageChange = (newPage: number) => {
     setPagination(prev => ({ ...prev, page: newPage }));
-    loadRequests({ page: newPage });
+    loadRoutes({ page: newPage });
   };
 
-  const transportTypes = pricingService.getAvailableTransportTypes();
+  const transportTypes = shippingService.getAvailableTransportTypes();
+  const countries = shippingService.getAvailableCountries();
 
-  if (loading && requests.length === 0) {
+  if (loading && routes.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -118,13 +125,13 @@ export const PricingManagement: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
-          Gestione Richieste di Pricing
+          Gestione Rotte di Trasporto
         </h2>
         <button
           onClick={() => setShowForm(true)}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
         >
-          ➕ Nuova Richiesta
+          ➕ Nuova Rotta
         </button>
       </div>
 
@@ -154,14 +161,14 @@ export const PricingManagement: React.FC = () => {
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Ricerca
             </label>
             <input
               type="text"
-              placeholder="Città, prodotto, HS Code..."
+              placeholder="Route ID, note..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -170,18 +177,33 @@ export const PricingManagement: React.FC = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Stato
+              Paese Origine
             </label>
             <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              value={filterOriginCountry}
+              onChange={(e) => setFilterOriginCountry(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Tutti gli stati</option>
-              <option value="pending">In attesa</option>
-              <option value="calculated">Calcolato</option>
-              <option value="expired">Scaduto</option>
-              <option value="cancelled">Annullato</option>
+              <option value="">Tutti i paesi</option>
+              {countries.map(country => (
+                <option key={country} value={country}>{country}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Paese Destinazione
+            </label>
+            <select
+              value={filterDestinationCountry}
+              onChange={(e) => setFilterDestinationCountry(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">Tutti i paesi</option>
+              {countries.map(country => (
+                <option key={country} value={country}>{country}</option>
+              ))}
             </select>
           </div>
           
@@ -201,12 +223,29 @@ export const PricingManagement: React.FC = () => {
             </select>
           </div>
           
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Stato
+            </label>
+            <select
+              value={filterIsActive}
+              onChange={(e) => setFilterIsActive(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">Tutti</option>
+              <option value="true">Attive</option>
+              <option value="false">Inattive</option>
+            </select>
+          </div>
+          
           <div className="flex items-end">
             <button
               onClick={() => {
                 setSearchTerm('');
-                setFilterStatus('');
+                setFilterOriginCountry('');
+                setFilterDestinationCountry('');
                 setFilterTransportType('');
+                setFilterIsActive('');
               }}
               className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
             >
@@ -216,26 +255,26 @@ export const PricingManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Requests Table */}
+      {/* Routes Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Route ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Origine → Destinazione
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Prodotto
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Peso/Volume
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Trasporto
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Valore
+                  Tempi
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Costi
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stato
@@ -246,57 +285,45 @@ export const PricingManagement: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {requests.map((request) => (
-                <tr key={request._id} className="hover:bg-gray-50">
+              {routes.map((route) => (
+                <tr key={route._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {route.routeId}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <div>
-                      <div className="font-medium">{request.origin.city}, {request.origin.country}</div>
-                      <div className="text-gray-500">→ {request.destination.city}, {request.destination.country}</div>
+                      <div className="font-medium">{route.originCountry}</div>
+                      <div className="text-gray-500">→ {route.destinationCountry}</div>
                     </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <span className="capitalize">{route.transportType}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div>
-                      <div className="font-medium">{request.cargo.productDescription}</div>
-                      <div className="text-gray-400">{request.cargo.hsCode}</div>
+                      <div>Base: {route.baseTransitTime} giorni</div>
+                      <div className="text-gray-400">Totale: {route.totalTransitTime} giorni</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div>
-                      <div>{request.cargo.weight} kg</div>
-                      <div className="text-gray-400">{request.cargo.volume} m³</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div>
-                      <div className="font-medium">{request.transport.type}</div>
-                      <div className="text-gray-400">{request.transport.urgency}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    €{request.cargo.value.toLocaleString()}
+                    €{route.totalCost?.toLocaleString() || '0'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs rounded-full ${
-                      request.status === 'calculated' ? 'bg-green-100 text-green-800' :
-                      request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      request.status === 'expired' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
+                      route.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
-                      {request.status === 'calculated' ? 'Calcolato' :
-                       request.status === 'pending' ? 'In attesa' :
-                       request.status === 'expired' ? 'Scaduto' :
-                       request.status === 'cancelled' ? 'Annullato' : request.status}
+                      {route.isActive ? 'Attiva' : 'Inattiva'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
-                      onClick={() => handleEdit(request)}
+                      onClick={() => handleEdit(route)}
                       className="text-indigo-600 hover:text-indigo-900 mr-3"
                     >
                       ✏️ Modifica
                     </button>
                     <button
-                      onClick={() => handleDelete(request._id!)}
+                      onClick={() => handleDelete(route._id!)}
                       className="text-red-600 hover:text-red-900"
                     >
                       🗑️ Elimina
@@ -361,12 +388,12 @@ export const PricingManagement: React.FC = () => {
 
       {/* Form Modal */}
       {showForm && (
-        <PricingForm
-          request={editingRequest}
+        <ShippingRouteForm
+          route={editingRoute}
           onSubmit={handleFormSubmit}
           onCancel={() => {
             setShowForm(false);
-            setEditingRequest(null);
+            setEditingRoute(null);
           }}
         />
       )}
@@ -374,62 +401,75 @@ export const PricingManagement: React.FC = () => {
   );
 };
 
-// Pricing Form Component
-interface PricingFormProps {
-  request?: PricingRequest | null;
-  onSubmit: (data: Partial<PricingRequest>) => void;
+// Shipping Route Form Component
+interface ShippingRouteFormProps {
+  route?: ShippingRoute | null;
+  onSubmit: (data: Partial<ShippingRoute>) => void;
   onCancel: () => void;
 }
 
-const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }) => {
-  const transportTypes = pricingService.getAvailableTransportTypes();
-  const countries = pricingService.getAvailableCountries();
-  const [formData, setFormData] = useState<Partial<PricingRequest>>({
-    origin: { city: '', country: '' },
-    destination: { city: '', country: '' },
-    cargo: {
-      productDescription: '',
-      hsCode: '',
-      weight: 0,
-      volume: 0,
-      value: 0,
-      quantity: 1,
-      dimensions: {
-        length: 1,
-        width: 1,
-        height: 1
-      }
-    },
-    transport: {
-      type: 'road',
-      urgency: 'standard',
-      specialRequirements: []
-    },
-    options: {
-      insurance: false,
-      customsClearance: false,
-      doorToDoor: false,
-      temperatureControlled: false
-    },
-    status: 'pending'
-  });
+const ShippingRouteForm: React.FC<ShippingRouteFormProps> = ({ route, onSubmit, onCancel }) => {
+  const transportTypes = shippingService.getAvailableTransportTypes();
+  const countries = shippingService.getAvailableCountries();
+  
+  const [formData, setFormData] = useState<Partial<ShippingRoute>>((() => {
+    const today = new Date().toISOString().split('T')[0];
+    return {
+      routeId: '',
+      originCountry: '',
+      destinationCountry: '',
+      transportType: 'road',
+      baseTransitTime: 0,
+      customsDelay: 0,
+      portCongestion: 0,
+      restrictions: [],
+      requirements: {
+        documents: [],
+        specialHandling: [],
+        certifications: []
+      },
+      costs: {
+        baseCost: 0,
+        customsFees: 0,
+        portFees: 0,
+        additionalFees: 0
+      },
+      isActive: true,
+      effectiveDate: today,
+      expiryDate: '',
+      source: ''
+    } as Partial<ShippingRoute>;
+  })());
 
   useEffect(() => {
-    if (request) {
-      const requestData: Partial<PricingRequest> = {
-        origin: request.origin,
-        destination: request.destination,
-        cargo: request.cargo,
-        transport: request.transport
+    if (route) {
+      const today = new Date().toISOString().split('T')[0];
+      const routeData: Partial<ShippingRoute> = {
+        routeId: route.routeId,
+        originCountry: route.originCountry,
+        destinationCountry: route.destinationCountry,
+        transportType: route.transportType,
+        baseTransitTime: route.baseTransitTime,
+        customsDelay: route.customsDelay,
+        portCongestion: route.portCongestion,
+        restrictions: route.restrictions,
+        requirements: route.requirements,
+        costs: route.costs,
+        isActive: route.isActive,
+        effectiveDate: ((route.effectiveDate && route.effectiveDate.split('T')[0]) || today) as string,
+        source: route.source
       };
       
-      if (request._id) requestData._id = request._id;
-      if (request.status) requestData.status = request.status;
-      if (request.notes) requestData.notes = request.notes;
+      if (route._id) routeData._id = route._id;
+      if (route.notes) routeData.notes = route.notes;
+      if (route.expiryDate && route.expiryDate.length > 0) {
+        const expiryDateString = route.expiryDate.split('T')[0];
+        if (expiryDateString) routeData.expiryDate = expiryDateString as string;
+      }
       
-      setFormData(requestData);
+      setFormData(routeData);
     }
-  }, [request]);
+  }, [route]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -442,29 +482,51 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
         <div className="mt-3">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900">
-              {request ? 'Modifica Richiesta di Pricing' : 'Nuova Richiesta di Pricing'}
+              {route ? 'Modifica Rotta di Trasporto' : 'Nuova Rotta di Trasporto'}
             </h3>
             <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">✕</button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Basic Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Route ID *
+                </label>
+                <input
+                  type="text"
+                  value={formData.routeId || ''}
+                  onChange={(e) => setFormData({...formData, routeId: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Fonte *
+                </label>
+                <input
+                  type="text"
+                  value={formData.source || ''}
+                  onChange={(e) => setFormData({...formData, source: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+            </div>
+
             {/* Origin and Destination */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Paese Origine
+                  Paese Origine *
                 </label>
                 <select
-                  value={formData.origin?.country || ''}
-                  onChange={(e) => setFormData({
-                    ...formData, 
-                    origin: {
-                      country: e.target.value,
-                      city: formData.origin?.city || '',
-                      ...(formData.origin?.coordinates && { coordinates: formData.origin.coordinates })
-                    }
-                  })}
+                  value={formData.originCountry || ''}
+                  onChange={(e) => setFormData({...formData, originCountry: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
                 >
                   <option value="">Seleziona paese</option>
                   {countries.map(country => (
@@ -474,19 +536,13 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Paese Destinazione
+                  Paese Destinazione *
                 </label>
                 <select
-                  value={formData.destination?.country || ''}
-                  onChange={(e) => setFormData({
-                    ...formData, 
-                    destination: {
-                      country: e.target.value,
-                      city: formData.destination?.city || '',
-                      ...(formData.destination?.coordinates && { coordinates: formData.destination.coordinates })
-                    }
-                  })}
+                  value={formData.destinationCountry || ''}
+                  onChange={(e) => setFormData({...formData, destinationCountry: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
                 >
                   <option value="">Seleziona paese</option>
                   {countries.map(country => (
@@ -494,109 +550,85 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                   ))}
                 </select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Città Origine
+                  Tipo Trasporto *
                 </label>
                 <select
-                  value={formData.origin?.city || ''}
-                  onChange={(e) => setFormData({
-                    ...formData, 
-                    origin: {
-                      country: formData.origin?.country || '',
-                      city: e.target.value,
-                      ...(formData.origin?.coordinates && { coordinates: formData.origin.coordinates })
-                    }
-                  })}
-                  disabled={!formData.origin?.country}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
+                  value={formData.transportType || 'road'}
+                  onChange={(e) => setFormData({...formData, transportType: e.target.value as 'road' | 'air' | 'sea' | 'rail' | 'multimodal'})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
                 >
-                  <option value="">Seleziona città</option>
-                  {formData.origin?.country && pricingService.getAvailableCities(formData.origin.country).map(city => (
-                    <option key={city} value={city}>{city}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Città Destinazione
-                </label>
-                <select
-                  value={formData.destination?.city || ''}
-                  onChange={(e) => setFormData({
-                    ...formData, 
-                    destination: {
-                      country: formData.destination?.country || '',
-                      city: e.target.value,
-                      ...(formData.destination?.coordinates && { coordinates: formData.destination.coordinates })
-                    }
-                  })}
-                  disabled={!formData.destination?.country}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
-                >
-                  <option value="">Seleziona città</option>
-                  {formData.destination?.country && pricingService.getAvailableCities(formData.destination.country).map(city => (
-                    <option key={city} value={city}>{city}</option>
+                  {transportTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
                   ))}
                 </select>
               </div>
             </div>
 
-            {/* Cargo Details */}
+            {/* Transit Times */}
             <div>
-              <h4 className="text-md font-medium text-gray-900 mb-3">Dettagli Merce</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h4 className="text-md font-medium text-gray-900 mb-3">Tempi di Transito (giorni)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Descrizione Prodotto
+                    Tempo Base *
                   </label>
                   <input
-                    type="text"
-                    value={formData.cargo?.productDescription || ''}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      cargo: {
-                        ...formData.cargo!,
-                        productDescription: e.target.value
-                      }
-                    })}
+                    type="number"
+                    min="0"
+                    value={formData.baseTransitTime || 0}
+                    onChange={(e) => setFormData({...formData, baseTransitTime: Number(e.target.value)})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Ritardo Dogana
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.customsDelay || 0}
+                    onChange={(e) => setFormData({...formData, customsDelay: Number(e.target.value)})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    HS Code
+                    Congestione Porto
                   </label>
                   <input
-                    type="text"
-                    value={formData.cargo?.hsCode || ''}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      cargo: {
-                        ...formData.cargo!,
-                        hsCode: e.target.value
-                      }
-                    })}
+                    type="number"
+                    min="0"
+                    value={formData.portCongestion || 0}
+                    onChange={(e) => setFormData({...formData, portCongestion: Number(e.target.value)})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Costs */}
+            <div>
+              <h4 className="text-md font-medium text-gray-900 mb-3">Costi (€)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Peso (kg)
+                    Costo Base
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
-                    value={formData.cargo?.weight || 0}
+                    value={formData.costs?.baseCost || 0}
                     onChange={(e) => setFormData({
                       ...formData, 
-                      cargo: {
-                        ...formData.cargo!,
-                        weight: Number(e.target.value)
+                      costs: {
+                        ...formData.costs!,
+                        baseCost: Number(e.target.value)
                       }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -604,18 +636,18 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Volume (m³)
+                    Tasse Dogana
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
-                    value={formData.cargo?.volume || 0}
+                    value={formData.costs?.customsFees || 0}
                     onChange={(e) => setFormData({
                       ...formData, 
-                      cargo: {
-                        ...formData.cargo!,
-                        volume: Number(e.target.value)
+                      costs: {
+                        ...formData.costs!,
+                        customsFees: Number(e.target.value)
                       }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -623,18 +655,37 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Valore (€)
+                    Tasse Porto
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
-                    value={formData.cargo?.value || 0}
+                    value={formData.costs?.portFees || 0}
                     onChange={(e) => setFormData({
                       ...formData, 
-                      cargo: {
-                        ...formData.cargo!,
-                        value: Number(e.target.value)
+                      costs: {
+                        ...formData.costs!,
+                        portFees: Number(e.target.value)
+                      }
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Costi Aggiuntivi
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.costs?.additionalFees || 0}
+                    onChange={(e) => setFormData({
+                      ...formData, 
+                      costs: {
+                        ...formData.costs!,
+                        additionalFees: Number(e.target.value)
                       }
                     })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -643,86 +694,58 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
               </div>
             </div>
 
-            {/* Transport Details */}
-            <div>
-              <h4 className="text-md font-medium text-gray-900 mb-3">Dettagli Trasporto</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tipo Trasporto
-                  </label>
-                  <select
-                    value={formData.transport?.type || 'road'}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      transport: {
-                        ...formData.transport!,
-                        type: e.target.value as 'road' | 'air' | 'sea' | 'rail' | 'multimodal'
-                      }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    {transportTypes.map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Urgenza
-                  </label>
-                  <select
-                    value={formData.transport?.urgency || 'standard'}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      transport: {
-                        ...formData.transport!,
-                        urgency: e.target.value as 'standard' | 'express' | 'urgent'
-                      }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="standard">Standard</option>
-                    <option value="express">Express</option>
-                    <option value="urgent">Urgente</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Status and Notes */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Status and Dates */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Stato
                 </label>
                 <select
-                  value={formData.status || 'pending'}
-                  onChange={(e) => setFormData({
-                    ...formData, 
-                    status: e.target.value as 'pending' | 'calculated' | 'expired' | 'cancelled'
-                  })}
+                  value={formData.isActive ? 'true' : 'false'}
+                  onChange={(e) => setFormData({...formData, isActive: e.target.value === 'true'})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="pending">In attesa</option>
-                  <option value="calculated">Calcolato</option>
-                  <option value="expired">Scaduto</option>
-                  <option value="cancelled">Annullato</option>
+                  <option value="true">Attiva</option>
+                  <option value="false">Inattiva</option>
                 </select>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Note (opzionale)
+                  Data Effettiva *
                 </label>
-                <textarea
-                  rows={3}
-                  value={formData.notes || ''}
-                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  placeholder="Note per la richiesta..."
+                <input
+                  type="date"
+                  value={formData.effectiveDate || ''}
+                  onChange={(e) => setFormData({...formData, effectiveDate: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Data Scadenza
+                </label>
+                <input
+                  type="date"
+                  value={formData.expiryDate || ''}
+                  onChange={(e) => setFormData({...formData, expiryDate: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Note (opzionale)
+              </label>
+              <textarea
+                rows={3}
+                value={formData.notes || ''}
+                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                placeholder="Note per la rotta..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
             </div>
 
             {/* Actions */}
@@ -738,7 +761,7 @@ const PricingForm: React.FC<PricingFormProps> = ({ request, onSubmit, onCancel }
                 type="submit"
                 className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
               >
-                {request ? 'Aggiorna Richiesta' : 'Crea Richiesta'}
+                {route ? 'Aggiorna Rotta' : 'Crea Rotta'}
               </button>
             </div>
           </form>

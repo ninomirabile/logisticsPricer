@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { PricingRequest, HSCode } from '../../types/pricing';
-import { searchHSCodes } from '../../services/pricingService';
 
 interface PricingFormProps {
   onSubmit: (request: PricingRequest) => void;
@@ -28,7 +27,7 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
   const [showHsCodeResults, setShowHsCodeResults] = useState(false);
   const [isSearchingHs, setIsSearchingHs] = useState(false);
 
-  // Ricerca codici HS
+  // Ricerca codici HS - placeholder per ora
   useEffect(() => {
     const searchHsCodes = async () => {
       if (hsCodeSearch.length < 3) {
@@ -38,9 +37,9 @@ export const PricingForm: React.FC<PricingFormProps> = ({ onSubmit, isLoading })
 
       setIsSearchingHs(true);
       try {
-        const response = await searchHSCodes(hsCodeSearch);
-        setHsCodeResults(response.data);
-        setShowHsCodeResults(true);
+        // Placeholder - implementare quando disponibile
+        setHsCodeResults([]);
+        setShowHsCodeResults(false);
       } catch (error) {
         console.error('Errore nella ricerca codici HS:', error);
         setHsCodeResults([]);

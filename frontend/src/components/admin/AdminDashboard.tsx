@@ -4,6 +4,8 @@ import { TariffManagement } from './TariffManagement';
 import { PricingManagement } from './PricingManagement';
 import { USDutiesManagement } from './USDutiesManagement';
 import { Analytics } from './Analytics';
+import { ShippingRouteManagement } from './ShippingRouteManagement';
+import { ShippingRouteStatsComponent } from './ShippingRouteStats';
 
 export const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -12,8 +14,10 @@ export const AdminDashboard: React.FC = () => {
     { name: 'Panoramica', href: '/admin', icon: '📊' },
     { name: 'Gestione Tariffe', href: '/admin/tariffs', icon: '💰' },
     { name: 'Gestione Prezzi', href: '/admin/pricing', icon: '📈' },
+    { name: 'Rotte di Trasporto', href: '/admin/shipping-routes', icon: '🚚' },
+    { name: 'Statistiche Rotte', href: '/admin/shipping-stats', icon: '📋' },
     { name: 'Dazi USA', href: '/admin/us-duties', icon: '🇺🇸' },
-    { name: 'Analytics', href: '/admin/analytics', icon: '📋' },
+    { name: 'Analytics', href: '/admin/analytics', icon: '📊' },
   ];
 
   const isActive = (href: string) => {
@@ -66,6 +70,8 @@ export const AdminDashboard: React.FC = () => {
               <Route path="/" element={<DashboardOverview />} />
               <Route path="/tariffs" element={<TariffManagement />} />
               <Route path="/pricing" element={<PricingManagement />} />
+              <Route path="/shipping-routes" element={<ShippingRouteManagement />} />
+              <Route path="/shipping-stats" element={<ShippingRouteStatsComponent />} />
               <Route path="/us-duties" element={<USDutiesManagement />} />
               <Route path="/analytics" element={<Analytics />} />
             </Routes>
@@ -113,11 +119,11 @@ const DashboardOverview: React.FC = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <div className="flex items-center">
             <div className="p-2 bg-yellow-100 rounded-lg">
-              <span className="text-2xl">🇺🇸</span>
+              <span className="text-2xl">🚚</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Dazi USA</p>
-              <p className="text-2xl font-semibold text-gray-900">89</p>
+              <p className="text-sm font-medium text-gray-600">Rotte di Trasporto</p>
+              <p className="text-2xl font-semibold text-gray-900">156</p>
             </div>
           </div>
         </div>
@@ -125,11 +131,11 @@ const DashboardOverview: React.FC = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <div className="flex items-center">
             <div className="p-2 bg-purple-100 rounded-lg">
-              <span className="text-2xl">📊</span>
+              <span className="text-2xl">🇺🇸</span>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Utenti Attivi</p>
-              <p className="text-2xl font-semibold text-gray-900">156</p>
+              <p className="text-sm font-medium text-gray-600">Dazi USA</p>
+              <p className="text-2xl font-semibold text-gray-900">89</p>
             </div>
           </div>
         </div>
@@ -140,7 +146,7 @@ const DashboardOverview: React.FC = () => {
         <h3 className="text-lg font-medium text-gray-900 mb-4">
           Azioni Rapide
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Link
             to="/admin/tariffs"
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -160,6 +166,17 @@ const DashboardOverview: React.FC = () => {
             <div>
               <p className="font-medium text-gray-900">Configura Prezzi</p>
               <p className="text-sm text-gray-600">Modifica prezzi base</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/admin/shipping-routes"
+            className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <span className="text-2xl mr-3">🚚</span>
+            <div>
+              <p className="font-medium text-gray-900">Gestisci Rotte</p>
+              <p className="text-sm text-gray-600">Rotte di trasporto</p>
             </div>
           </Link>
 

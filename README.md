@@ -1,342 +1,458 @@
-# LogisticsPricer
+# LogisticsPricer - Sistema di Calcolo Prezzi Trasporto
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/your-username/logisticspricer)
-[![License](https://img.shields.io/badge/license-CC--BY--NC--4.0-green.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
-[![MongoDB](https://img.shields.io/badge/mongodb-%3E%3D6.0-brightgreen.svg)](https://www.mongodb.com/)
-[![Docker](https://img.shields.io/badge/docker-required-blue.svg)](https://www.docker.com/)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-brightgreen.svg)](.github/workflows/ci-cd.yml)
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](backend/tests/)
-[![Coverage](https://img.shields.io/badge/coverage-%3E70%25-brightgreen.svg)](backend/tests/)
-[![Deploy](https://img.shields.io/badge/deploy-Docker%20%7C%20K8s-blue.svg)](deploy.sh)
-[![Status](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)](docs/README.md)
+Un'applicazione MERN stack completa per il calcolo dei costi di trasporto merci internazionale, con gestione di dazi, tariffe, rotte di trasporto e pricing.
 
-A professional web application for freight transport cost calculation using the MERN stack (MongoDB, Express.js, React, Node.js).
+![Screenshot dell'applicazione](docs/Screenshot_1.png)
 
-**Author**: Antonino Mirabile  
-**License**: [CC-BY-NC-4.0](LICENSE) (Non-commercial use)
+## 🚀 Funzionalità Principali
 
-## 🚀 Overview
+### ✅ Moduli Completamente Integrati
 
-LogisticsPricer provides accurate shipping estimates based on specific logistics parameters, with a modern and responsive interface.
+#### 1. **Shipping Routes Management** ⭐ **COMPLETO**
+- ✅ CRUD completo per rotte di trasporto
+- ✅ Gestione paesi origine/destinazione
+- ✅ Calcolo tempi di transito (base, dogana, congestione porto)
+- ✅ Gestione costi (base, dogane, porto, aggiuntivi)
+- ✅ Filtri avanzati e paginazione
+- ✅ Form modali per creazione/modifica
+- ✅ Dashboard statistiche rotte
+- ✅ Gestione restrizioni e requisiti
 
-### Key Features
-- ✅ Real-time transport cost calculation
-- ✅ Modern and responsive user interface
-- ✅ Calculation history and analytics
-- ✅ Scalable RESTful API
-- ✅ Robust input/output validation
-- ✅ Optimized performance
-- ✅ Community-driven development
-- **🆕 Centralized URL Management System**
-- **🆕 Multi-Environment Support (Dev/Staging/Prod)**
-- **🆕 Enterprise CI/CD Pipeline**
-- **🆕 Custom Domain Support**
-- **🆕 Zero-Downtime Deployments**
-- **🆕 Comprehensive Admin Dashboard**
-- **🆕 USA Duties Management Module**
-- **🆕 Advanced Pricing Management**
-- **🆕 Real-time Analytics & Reporting**
+#### 2. **Pricing Management** ⭐ **COMPLETO**
+- ✅ **Gestione Richieste di Pricing**: CRUD completo per richieste di calcolo prezzi
+- ✅ **Gestione Risposte di Pricing**: Visualizzazione risultati calcoli
+- ✅ **Statistiche Avanzate**: Dashboard con metriche e grafici
+- ✅ **Filtri Intelligenti**: Ricerca per città, prodotto, HS Code, stato, tipo trasporto
+- ✅ **Paginazione**: Gestione grandi volumi di dati
+- ✅ **Form Completo**: Creazione/modifica richieste con validazione
+- ✅ **Calcolo Automatico**: Integrazione con algoritmo di pricing esistente
 
-## 🏗️ Architecture
+#### 3. **Tariff Management** ⭐ **COMPLETO**
+- ✅ CRUD completo per tariffe internazionali
+- ✅ Gestione paesi origine/destinazione
+- ✅ Tariffe base e speciali (anti-dumping)
+- ✅ Date di efficacia e scadenza
+- ✅ Filtri e paginazione
+- ✅ Form modali per creazione/modifica
+- ✅ Validazione HS Code e tariffe
 
-### Technology Stack
-- **Backend**: Node.js + Express.js + TypeScript
-- **Database**: MongoDB + Mongoose ODM
-- **Frontend**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS + shadcn/ui
-- **State Management**: TanStack Query + Zustand
-- **Forms**: React Hook Form + Zod
-- **Testing**: Jest + Vitest + React Testing Library
-- **🆕 Infrastructure**: Docker + Kubernetes + GitHub Actions
-- **🆕 Reverse Proxy**: Nginx with SSL support
-- **🆕 Admin UI**: React Router + Responsive Design
-- **🆕 Data Visualization**: Chart.js + Analytics Dashboard
+#### 4. **USA Duties Management** ⭐ **COMPLETO**
+- ✅ CRUD completo per dazi USA
+- ✅ Gestione Section 301, 232, 201
+- ✅ Ricerca per HS Code e descrizione prodotto
+- ✅ Statistiche e filtri avanzati
+- ✅ Interfaccia React moderna
+- ✅ Form modali per creazione/modifica
 
-## 🆕 New Features
+### 🔧 Funzionalità Tecniche
 
-### Admin Dashboard
-A comprehensive management interface for system administrators:
+- **Backend API RESTful** con TypeScript
+- **Frontend React** con Tailwind CSS
+- **Database MongoDB** con Mongoose
+- **Validazione Dati** completa
+- **Gestione Errori** robusta
+- **Loading States** e feedback utente
+- **Responsive Design** per tutti i dispositivi
+- **TypeScript Strict Mode** con exactOptionalPropertyTypes
 
-- **📊 Dashboard Overview**: Real-time metrics and system status
-- **💰 Tariff Management**: Create, edit, and manage shipping tariffs
-- **💵 Pricing Management**: Configure base prices and pricing rules
-- **🇺🇸 USA Duties Management**: Handle US import duties and taxes
-- **📈 Analytics & Reporting**: Performance metrics and business insights
+## 📊 Moduli Implementati
 
-### USA Duties Module
-Specialized functionality for US import operations:
+### 1. Shipping Routes Management
 
-- **🏛️ Duty Calculation**: Automated US customs duty calculations
-- **📋 Tariff Classification**: HS code management and classification
-- **💰 Tax Management**: Sales tax, excise tax, and other US taxes
-- **📊 Compliance Reporting**: Regulatory compliance and documentation
-- **🔄 Real-time Updates**: Live duty rate updates and currency conversion
+#### Endpoint API Disponibili
+- `GET /api/v1/shipping/routes` - Lista rotte con filtri e paginazione
+- `GET /api/v1/shipping/routes/:id` - Dettaglio singola rotta
+- `POST /api/v1/shipping/routes` - Crea nuova rotta
+- `PUT /api/v1/shipping/routes/:id` - Modifica rotta
+- `DELETE /api/v1/shipping/routes/:id` - Elimina rotta
+- `GET /api/v1/shipping/routes/stats` - Statistiche rotte
 
-### Enhanced Pricing System
-Advanced pricing management capabilities:
+#### Struttura Dati
+```typescript
+{
+  routeId: string;
+  originCountry: string;
+  destinationCountry: string;
+  transportType: 'road' | 'air' | 'sea' | 'rail' | 'multimodal';
+  baseTransitTime: number; // giorni
+  customsDelay: number; // giorni
+  portCongestion: number; // giorni
+  totalTransitTime: number; // calcolato automaticamente
+  restrictions: string[];
+  requirements: {
+    documents: string[];
+    specialHandling: string[];
+    certifications: string[];
+  };
+  costs: {
+    baseCost: number;
+    customsFees: number;
+    portFees: number;
+    additionalFees: number;
+  };
+  totalCost: number; // calcolato automaticamente
+  isActive: boolean;
+  effectiveDate: Date;
+  expiryDate?: Date;
+  notes?: string;
+  source: string;
+}
+```
 
-- **🎯 Dynamic Pricing**: Rule-based pricing adjustments
-- **📅 Seasonal Rates**: Time-based pricing variations
-- **🌍 Regional Pricing**: Location-specific pricing strategies
-- **📦 Volume Discounts**: Bulk shipping rate optimization
-- **⚡ Real-time Updates**: Instant price recalculation
+### 2. Pricing Management
 
-## 🚀 Quick Start
+#### Endpoint API Disponibili
+- `GET /api/v1/pricing/requests` - Lista richieste con filtri e paginazione
+- `GET /api/v1/pricing/requests/:id` - Dettaglio singola richiesta
+- `POST /api/v1/pricing/requests` - Crea nuova richiesta
+- `PUT /api/v1/pricing/requests/:id` - Modifica richiesta
+- `DELETE /api/v1/pricing/requests/:id` - Elimina richiesta
+- `GET /api/v1/pricing/requests/stats` - Statistiche richieste
+- `GET /api/v1/pricing/responses` - Lista risposte con filtri
+- `GET /api/v1/pricing/responses/:id` - Dettaglio singola risposta
+- `POST /api/v1/pricing/calculate` - Calcola prezzo trasporto
 
-### Prerequisites
+#### Struttura Dati PricingRequest
+```typescript
+{
+  origin: { country: string; city: string; coordinates?: [number, number] };
+  destination: { country: string; city: string; coordinates?: [number, number] };
+  cargo: {
+    weight: number; // kg
+    volume: number; // m³
+    dimensions: { length: number; width: number; height: number };
+    hsCode: string;
+    productDescription: string;
+    value: number; // USD
+    quantity: number;
+  };
+  transport: {
+    type: 'road' | 'air' | 'sea' | 'rail' | 'multimodal';
+    urgency: 'standard' | 'express' | 'urgent';
+    specialRequirements: string[];
+  };
+  options: {
+    insurance: boolean;
+    customsClearance: boolean;
+    doorToDoor: boolean;
+    temperatureControlled: boolean;
+  };
+  status: 'pending' | 'calculated' | 'expired' | 'cancelled';
+}
+```
+
+#### Struttura Dati PricingResponse
+```typescript
+{
+  requestId: string;
+  baseTransportCost: number;
+  dutiesAndTariffs: {
+    baseDuty: number;
+    specialTariffs: number;
+    totalDuties: number;
+    appliedRates: Array<{ tariffId: string; rate: number; type: string; description: string }>;
+  };
+  additionalCosts: {
+    customsClearance: number;
+    documentation: number;
+    insurance: number;
+    handling: number;
+    storage: number;
+  };
+  totalCost: number;
+  breakdown: { transport: number; duties: number; fees: number; insurance: number; total: number };
+  transitTime: { estimated: number; confidence: number; factors: string[] };
+  validity: { from: Date; to: Date };
+  notes: string[];
+}
+```
+
+### 3. Tariff Management
+
+#### Endpoint API Disponibili
+- `GET /api/v1/tariffs` - Lista tariffe con filtri e paginazione
+- `GET /api/v1/tariffs/:id` - Dettaglio singola tariffa
+- `POST /api/v1/tariffs` - Crea nuova tariffa
+- `PUT /api/v1/tariffs/:id` - Modifica tariffa
+- `DELETE /api/v1/tariffs/:id` - Elimina tariffa
+- `GET /api/v1/tariffs/stats` - Statistiche tariffe
+
+#### Struttura Dati
+```typescript
+{
+  originCountry: string;
+  destinationCountry: string;
+  hsCode: string; // formato: XXXX.XX.XX
+  baseRate: number; // percentuale
+  specialRate?: number; // percentuale per tariffe speciali
+  effectiveDate: Date;
+  expiryDate?: Date;
+  source: 'WTO' | 'CUSTOMS_API' | 'MANUAL' | 'TRADE_AGREEMENT';
+  isActive: boolean;
+  notes?: string;
+}
+```
+
+### 4. USA Duties Management
+
+#### Endpoint API Disponibili
+- `GET /api/v1/usa-duties` - Lista dazi con filtri
+- `GET /api/v1/usa-duties/:id` - Dettaglio singolo dazio
+- `POST /api/v1/usa-duties` - Crea nuovo dazio
+- `PUT /api/v1/usa-duties/:id` - Modifica dazio
+- `DELETE /api/v1/usa-duties/:id` - Elimina dazio
+
+#### Struttura Dati
+```typescript
+{
+  hsCode: string;
+  productDescription: string;
+  baseRate: number; // percentuale
+  section301Rate?: number; // percentuale
+  section232Rate?: number; // percentuale
+  section201Rate?: number; // percentuale
+  effectiveDate: Date;
+  expiryDate?: Date;
+  source: 'USTR' | 'DOC' | 'CBP' | 'MANUAL';
+  isActive: boolean;
+  notes?: string;
+}
+```
+
+## 🛠️ Installazione e Setup
+
+### Prerequisiti
 - Node.js 18+
 - MongoDB 6+
-- Git
-- Docker (optional, for containerized deployment)
+- npm o yarn
 
-### Quick Setup
-
-#### 🎯 Simple Method (Recommended)
+### 1. Clone Repository
 ```bash
-# Clone repository
 git clone <repository-url>
-cd logisticspricer
-
-# Start the entire application with one command
-./start.sh
-
-# To stop everything
-./stop.sh
+cd logisticsPricer
 ```
 
-#### 🔧 Manual Method
+### 2. Setup Backend
 ```bash
-# Clone repository
-git clone <repository-url>
-cd logisticspricer
-
-# Setup backend
 cd backend
 npm install
-npm run dev
+npm run build
+```
 
-# Setup frontend (new terminal)
+### 3. Setup Frontend
+```bash
 cd frontend
 npm install
-npm run dev
 ```
 
-#### 🆕 Production Deployment
+### 4. Configurazione Database
 ```bash
-# Setup custom domain
-./scripts/setup-domains.sh -e production -d yourdomain.com -a api.yourdomain.com
+# Avvia MongoDB (se non già in esecuzione)
+sudo systemctl start mongod
 
-# Deploy with Docker Compose
+# Oppure usa Docker
+docker run -d -p 27017:27017 --name mongodb mongo:6
+```
+
+### 5. Avvio Applicazione
+
+#### Opzione 1: Script Automatici
+```bash
+# Avvia tutto (backend + frontend + MongoDB)
+./start.sh
+
+# Ferma tutto
+./stop.sh
+
+# Gestione MongoDB
+./db.sh start
+./db.sh stop
+./db.sh status
+```
+
+#### Opzione 2: Manuale
+```bash
+# Terminal 1: Backend
+cd backend
+npm run dev
+
+# Terminal 2: Frontend  
+cd frontend
+npm run dev
+
+# Terminal 3: MongoDB (se necessario)
+mongod
+```
+
+## 🌐 Accesso Applicazione
+
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:5000
+- **Health Check**: http://localhost:5000/health
+- **API Docs**: http://localhost:5000/api/v1
+
+## 📁 Struttura Progetto
+
+```
+logisticsPricer/
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   │   ├── usaDutiesController.ts ✅
+│   │   │   ├── tariffController.ts ✅
+│   │   │   ├── pricingController.ts ✅
+│   │   │   └── shippingController.ts ✅
+│   │   ├── models/
+│   │   │   ├── USDuty.ts ✅
+│   │   │   ├── TariffRate.ts ✅
+│   │   │   ├── PricingRequest.ts ✅
+│   │   │   ├── PricingResponse.ts ✅
+│   │   │   ├── ShippingRoute.ts ✅
+│   │   │   └── DutyCalculation.ts ✅
+│   │   ├── routes/
+│   │   │   ├── usaDuties.ts ✅
+│   │   │   ├── tariffs.ts ✅
+│   │   │   ├── pricing.ts ✅
+│   │   │   ├── shipping.ts ✅
+│   │   │   ├── auth.ts
+│   │   │   └── users.ts
+│   │   ├── services/
+│   │   ├── middleware/
+│   │   ├── config/
+│   │   ├── types/
+│   │   └── utils/
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── admin/
+│   │   │   │   ├── AdminDashboard.tsx ✅
+│   │   │   │   ├── USDutiesManagement.tsx ✅
+│   │   │   │   ├── TariffManagement.tsx ✅
+│   │   │   │   ├── TariffForm.tsx ✅
+│   │   │   │   ├── PricingManagement.tsx ✅
+│   │   │   │   ├── PricingStats.tsx ✅
+│   │   │   │   ├── ShippingRouteManagement.tsx ✅
+│   │   │   │   ├── ShippingRouteStats.tsx ✅
+│   │   │   │   └── Analytics.tsx ✅
+│   │   │   └── business/
+│   │   │       ├── PricingCalculator.tsx ✅
+│   │   │       ├── PricingForm.tsx ✅
+│   │   │       └── PricingResult.tsx ✅
+│   │   ├── services/
+│   │   │   ├── usaDutiesService.ts ✅
+│   │   │   ├── tariffService.ts ✅
+│   │   │   ├── pricingService.ts ✅
+│   │   │   └── shippingService.ts ✅
+│   │   ├── types/
+│   │   │   └── pricing.ts ✅
+│   │   └── App.tsx
+│   └── package.json
+├── docs/
+├── scripts/
+├── config/
+├── start.sh
+├── stop.sh
+├── db.sh
+└── README.md
+```
+
+## 🎯 Funzionalità Disponibili
+
+### Dashboard Amministrativa
+- **Gestione Rotte di Trasporto**: CRUD completo con filtri e statistiche
+- **Gestione Tariffe Doganali**: CRUD completo con validazione
+- **Gestione Dazi USA**: CRUD completo con filtri per section
+- **Gestione Richieste di Pricing**: CRUD completo con dashboard statistiche
+- **Analytics**: Dashboard con metriche e grafici
+
+### Calcolo Prezzi
+- **Form di Calcolo**: Interfaccia per inserimento dati spedizione
+- **Calcolo Automatico**: Integrazione con algoritmi di pricing
+- **Risultati Dettagliati**: Breakdown completo dei costi
+- **Storico Richieste**: Gestione e visualizzazione richieste precedenti
+
+## 🔄 Prossimi Moduli da Integrare
+
+- [ ] **User Management & Authentication**
+- [ ] **Document Management**
+- [ ] **Reporting & Analytics Avanzati**
+- [ ] **Notifiche & Email**
+- [ ] **Import/Export Dati**
+- [ ] **API per Integrazioni Esterne**
+
+## 🐛 Troubleshooting
+
+### Problemi Comuni
+
+1. **MongoDB Connection Error**
+   ```bash
+   # Verifica stato MongoDB
+   ./db.sh status
+   
+   # Riavvia MongoDB
+   ./db.sh restart
+   ```
+
+2. **Port Already in Use**
+   ```bash
+   # Trova processo che usa la porta
+   lsof -i :5000
+   lsof -i :5173
+   
+   # Termina processo
+   kill -9 <PID>
+   ```
+
+3. **Build Errors**
+   ```bash
+   # Pulisci e reinstalla
+   cd backend && npm run clean && npm install
+   cd frontend && rm -rf node_modules && npm install
+   ```
+
+4. **TypeScript Errors**
+   ```bash
+   # Verifica build TypeScript
+   cd frontend && npm run build
+   cd backend && npm run build
+   ```
+
+## 📝 Note di Sviluppo
+
+- Tutti i moduli seguono lo stesso pattern di integrazione
+- API RESTful con validazione completa
+- Frontend con gestione stati, loading e errori
+- Database con modelli Mongoose ottimizzati
+- Interfaccia utente moderna e responsive
+- TypeScript Strict Mode con exactOptionalPropertyTypes
+- Gestione robusta delle date e tipi opzionali
+
+## 🚀 Deploy
+
+### Docker
+```bash
+# Build e avvio con Docker Compose
 docker-compose up -d
 
-# Or deploy with Kubernetes
-./deploy.sh production
+# Stop
+docker-compose down
 ```
 
-### 🆕 Accessing the Application
-
-#### Public Interface
-- **Main Application**: http://localhost:3000
-- **Pricing Calculator**: http://localhost:3000/calculator
-
-#### Admin Interface
-- **Admin Dashboard**: http://localhost:3000/admin
-- **Tariff Management**: http://localhost:3000/admin/tariffs
-- **Pricing Management**: http://localhost:3000/admin/pricing
-- **USA Duties**: http://localhost:3000/admin/usa-duties
-- **Analytics**: http://localhost:3000/admin/analytics
-
-#### API Endpoints
-- **Backend API**: http://localhost:5000/api
-- **Health Check**: http://localhost:5000/api/health
-
-### Useful Commands
-
-#### Management Scripts
+### Kubernetes
 ```bash
-./start.sh          # Start the entire application
-./stop.sh           # Stop all services
-./stop.sh status    # Show service status
-./stop.sh force     # Force stop all services
-./deploy.sh         # Deploy to production
+# Deploy su cluster K8s
+kubectl apply -f k8s/
 ```
 
-#### 🆕 Domain Management
-```bash
-# Development environment
-./scripts/setup-domains.sh -e development
+## 🤝 Contributi
 
-# Staging environment
-./scripts/setup-domains.sh -e staging -d staging.yourdomain.com -a api-staging.yourdomain.com
+1. Fork del progetto
+2. Crea branch feature (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push al branch (`git push origin feature/AmazingFeature`)
+5. Apri Pull Request
 
-# Production environment
-./scripts/setup-domains.sh -e production -d yourdomain.com -a api.yourdomain.com
-```
+## 📄 Licenza
 
-#### Logs and Monitoring
-```bash
-# View real-time logs
-tail -f logs/backend.log    # Backend logs
-tail -f logs/frontend.log   # Frontend logs
-
-# Check service status
-./stop.sh status
-
-# 🆕 Check deployment status
-docker-compose ps
-kubectl get pods -n logisticspricer
-```
-
-## 📊 Performance Goals
-
-- **API Response Time**: <500ms
-- **Frontend Load Time**: <5s
-- **Bundle Size**: <1MB gzipped
-- **Lighthouse Score**: >80
-- **Test Coverage**: >70%
-- **🆕 Zero-Downtime Deployments**: 100% uptime
-- **🆕 Multi-Environment Sync**: <30s propagation
-- **🆕 Admin Dashboard Load**: <3s
-- **🆕 Real-time Updates**: <1s latency
-
-## 🆕 Enterprise Features
-
-### Centralized URL Management
-- **Single Configuration Point**: Change domains in one place
-- **Multi-Environment Support**: Dev, staging, production
-- **Automatic Propagation**: Updates across all services
-- **Custom Domain Support**: White-label solutions
-
-### CI/CD Pipeline
-- **Automated Testing**: Unit, integration, security
-- **Docker Builds**: Optimized multi-stage builds
-- **Kubernetes Deployment**: Scalable container orchestration
-- **Security Scanning**: Vulnerability detection
-- **Rollback Capability**: Quick recovery from issues
-
-### Infrastructure
-- **Load Balancing**: Nginx reverse proxy
-- **SSL/TLS**: Automatic certificate management
-- **Health Checks**: Proactive monitoring
-- **Auto-scaling**: Kubernetes HPA
-- **Backup & Recovery**: Automated data protection
-
-### 🆕 Admin Management System
-- **Role-Based Access Control**: Secure admin authentication
-- **Audit Logging**: Complete action tracking
-- **Data Export**: CSV/Excel export capabilities
-- **Bulk Operations**: Mass data management
-- **Real-time Notifications**: System alerts and updates
-
-## 🤝 Contributing
-
-This project follows GitHub community best practices:
-
-### Quality Gates (Relaxed for Community)
-- ✅ Test coverage >70%
-- ✅ Linting with max 10 warnings
-- ✅ Performance response time <500ms
-- ✅ Bundle size <1MB
-- ✅ Security audit (max 5 low-severity vulnerabilities)
-- **🆕 CI/CD pipeline success**
-- **🆕 Multi-environment compatibility**
-- **🆕 Admin interface responsiveness**
-- **🆕 USA duties calculation accuracy**
-
-### Contribution Process
-1. Fork the repository
-2. Create feature branch
-3. Implement changes
-4. Test and validate
-5. Pull request with template
-6. Review and merge
-7. **🆕 Automated deployment to staging**
-
-## 📄 License
-
-This project is released under the [Creative Commons Attribution-NonCommercial 4.0 International](LICENSE) license.
-
-### What you can do:
-- ✅ Share and distribute the material
-- ✅ Adapt and modify the code
-- ✅ Use for educational and personal purposes
-
-### What you CANNOT do:
-- ❌ Use for commercial purposes
-- ❌ Omit attribution to the author
-- ❌ Apply additional restrictions
-
-## 👨‍💻 Author
-
-**Antonino Mirabile** - Full-stack developer with experience in modern technologies and software development best practices.
-
-## 🤖 AI Development Support
-
-This project was developed with AI support to optimize the development process and ensure code quality. AI was used for:
-
-- Boilerplate code generation
-- Performance optimization
-- Best practices implementation
-- Testing and quality assurance
-- Technical documentation
-- **🆕 Infrastructure automation**
-- **🆕 CI/CD pipeline design**
-- **🆕 Admin dashboard development**
-- **🆕 USA duties module implementation**
-
-## 📚 Documentation
-
-### 📖 [Complete Documentation](docs/README.md)
-
-Our comprehensive documentation is organized in the `docs/` directory:
-
-#### 🚀 Getting Started
-- **[Environment Setup](docs/environment-setup.md)** - Complete setup guide for all environments
-- **[Domain Configuration](docs/domain-setup.md)** - Custom domain setup and management
-
-#### 🏗️ Development & Architecture
-- **[CI/CD Pipeline](docs/ci-cd-pipeline.md)** - Deployment automation and pipeline details
-- **[API Documentation](docs/api-docs.md)** - Backend API reference (coming soon)
-- **[Frontend Guide](docs/frontend-guide.md)** - React development guide (coming soon)
-- **🆕 [Admin Dashboard Guide](docs/admin-dashboard.md)** - Admin interface documentation
-- **🆕 [USA Duties Module](docs/usa-duties.md)** - US import duties functionality
-
-#### 💼 Business & Market
-- **[Market Analysis](docs/market-analysis.md)** - Business analysis and market positioning
-- **🆕 [Pricing Strategy](docs/pricing-strategy.md)** - Pricing models and strategies
-
-#### 🛠️ Operations & Monitoring
-- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
-- **🆕 [Admin Operations](docs/admin-operations.md)** - Daily admin tasks and procedures
-
-### Quick Navigation
-- **For Developers**: Start with [Environment Setup](docs/environment-setup.md)
-- **For DevOps**: Check [CI/CD Pipeline](docs/ci-cd-pipeline.md)
-- **For Business**: Review [Market Analysis](docs/market-analysis.md)
-- **🆕 For Administrators**: See [Admin Dashboard Guide](docs/admin-dashboard.md)
-- **🆕 For US Operations**: Check [USA Duties Module](docs/usa-duties.md)
-
----
-
-## 🆕 Recent Updates
-
-### Version 1.1.0 (Current)
-- ✅ **Admin Dashboard**: Complete management interface
-- ✅ **USA Duties Module**: US import duties calculation
-- ✅ **Enhanced Pricing**: Advanced pricing management
-- ✅ **Real-time Analytics**: Performance monitoring
-- ✅ **Responsive Design**: Mobile-friendly admin interface
-- ✅ **MongoDB Integration**: Database connectivity
-- ✅ **CORS Configuration**: Cross-origin resource sharing
-- ✅ **UI/UX Improvements**: Better user experience
-
-### Upcoming Features
-- 🔄 **Backend Integration**: Connect admin dashboard to real APIs
-- 🔄 **Data Persistence**: Save admin configurations
-- 🔄 **User Authentication**: Secure admin access
-- 🔄 **Advanced Analytics**: Detailed reporting and insights
-- 🔄 **API Documentation**: Complete API reference
-- 🔄 **Testing Suite**: Comprehensive test coverage
-
----
+Questo progetto è sotto licenza MIT. Vedi `LICENSE` per dettagli.

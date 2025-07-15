@@ -27,7 +27,8 @@ export const TariffForm: React.FC<TariffFormProps> = ({ tariff, onSubmit, onCanc
     hsCode: '',
     baseRate: 0,
     specialRate: 0,
-    effectiveDate: new Date().toISOString().split('T')[0],
+    effectiveDate: new Date().toISOString().split('T')[0] || '',
+    expiryDate: '',
     source: 'MANUAL',
     isActive: true,
     notes: ''
@@ -37,11 +38,14 @@ export const TariffForm: React.FC<TariffFormProps> = ({ tariff, onSubmit, onCanc
 
   useEffect(() => {
     if (tariff) {
-      setFormData({
+      const effectiveDate = (tariff.effectiveDate && tariff.effectiveDate.split('T')[0]) || '';
+      const expiryDate = (tariff.expiryDate && tariff.expiryDate.split('T')[0]) || '';
+      const tariffData: Partial<TariffRate> = {
         ...tariff,
-        effectiveDate: tariff.effectiveDate.split('T')[0],
-        expiryDate: tariff.expiryDate?.split('T')[0] || ''
-      });
+        effectiveDate,
+        expiryDate
+      };
+      setFormData(tariffData);
     }
   }, [tariff]);
 
@@ -100,7 +104,7 @@ export const TariffForm: React.FC<TariffFormProps> = ({ tariff, onSubmit, onCanc
       newErrors.effectiveDate = 'Data di efficacia richiesta';
     }
 
-    if (formData.expiryDate && formData.expiryDate <= formData.effectiveDate) {
+    if (formData.expiryDate && formData.effectiveDate && formData.expiryDate <= formData.effectiveDate) {
       newErrors.expiryDate = 'Data di scadenza deve essere successiva alla data di efficacia';
     }
 
@@ -112,19 +116,25 @@ export const TariffForm: React.FC<TariffFormProps> = ({ tariff, onSubmit, onCanc
     e.preventDefault();
     
     if (validateForm()) {
-      const submitData = {
+      const submitData: Partial<TariffRate> = {
         ...formData,
         baseRate: Number(formData.baseRate),
-        specialRate: formData.specialRate ? Number(formData.specialRate) : undefined,
-        effectiveDate: formData.effectiveDate,
-        expiryDate: formData.expiryDate || undefined
+        effectiveDate: formData.effectiveDate!
       };
+      
+      if (formData.specialRate) {
+        submitData.specialRate = Number(formData.specialRate);
+      }
+      
+      if (formData.expiryDate) {
+        submitData.expiryDate = formData.expiryDate;
+      }
       
       onSubmit(submitData);
     }
   };
 
-  const handleInputChange = (field: keyof TariffRate, value: any) => {
+  const handleInputChange = (field: keyof TariffRate, value: string | number | boolean | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear error when user starts typing

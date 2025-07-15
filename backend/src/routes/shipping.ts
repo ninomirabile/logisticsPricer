@@ -1,5 +1,11 @@
 import { Router } from 'express';
 import { 
+  getAllShippingRoutes,
+  getShippingRouteById,
+  createShippingRoute,
+  updateShippingRoute,
+  deleteShippingRoute,
+  getShippingRouteStats,
   getShippingRoutes, 
   calculateTransitTime, 
   getRequiredDocuments, 
@@ -11,22 +17,20 @@ import { validateTransitCalculation } from '../middleware/validation';
 
 const router = Router();
 
-// Get available shipping routes
-router.get('/routes', getShippingRoutes);
+// CRUD operations for shipping routes
+router.get('/routes', getAllShippingRoutes);                    // Get all shipping routes with filtering/pagination
+router.get('/routes/stats', getShippingRouteStats);             // Get shipping route statistics
+router.get('/routes/:id', getShippingRouteById);                // Get single shipping route by ID
+router.post('/routes', createShippingRoute);                    // Create new shipping route
+router.put('/routes/:id', updateShippingRoute);                 // Update existing shipping route
+router.delete('/routes/:id', deleteShippingRoute);              // Delete shipping route
 
-// Calculate transit time
+// Legacy endpoints (for backward compatibility)
+router.get('/routes-legacy', getShippingRoutes);                // Legacy route listing
 router.post('/calculate-transit', validateTransitCalculation, calculateTransitTime);
-
-// Get required documents
 router.get('/documents', getRequiredDocuments);
-
-// Generate customs document
 router.post('/generate-document', generateDocument);
-
-// Check shipping restrictions
 router.get('/restrictions', checkRestrictions);
-
-// Validate shipping route
 router.post('/validate-route', validateRoute);
 
 export default router; 

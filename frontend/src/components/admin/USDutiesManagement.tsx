@@ -1,84 +1,38 @@
 import React, { useState, useEffect } from 'react';
-
-interface USDuty {
-  _id: string;
-  hsCode: string;
-  productDescription: string;
-  baseRate: number;
-  section301Rate?: number;
-  section232Rate?: number;
-  section201Rate?: number;
-  effectiveDate: string;
-  expiryDate?: string;
-  source: string;
-  isActive: boolean;
-  notes?: string;
-}
+import {
+  getUSDuties,
+  createUSDuty,
+  updateUSDuty,
+  deleteUSDuty,
+  USDuty
+} from '../../services/usaDutiesService';
 
 export const USDutiesManagement: React.FC = () => {
   const [duties, setDuties] = useState<USDuty[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingDuty, setEditingDuty] = useState<USDuty | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSection, setFilterSection] = useState('');
+  const [refresh, setRefresh] = useState(0);
 
-  // Mock data - in real app this would come from API
+  // Fetch duties from API
   useEffect(() => {
-    const mockDuties: USDuty[] = [
-      {
-        _id: '1',
-        hsCode: '8517.13.00',
-        productDescription: 'Smartphone',
-        baseRate: 3.9,
-        section301Rate: 15.0,
-        effectiveDate: '2024-01-01',
-        source: 'USTR',
-        isActive: true,
-        notes: 'Tariffa Section 301 per prodotti cinesi'
-      },
-      {
-        _id: '2',
-        hsCode: '7208.51.00',
-        productDescription: 'Acciaio in fogli',
-        baseRate: 2.5,
-        section232Rate: 25.0,
-        effectiveDate: '2024-01-01',
-        source: 'DOC',
-        isActive: true,
-        notes: 'Tariffa Section 232 per acciaio'
-      },
-      {
-        _id: '3',
-        hsCode: '8471.30.01',
-        productDescription: 'Computer portatili',
-        baseRate: 0.0,
-        section301Rate: 7.5,
-        effectiveDate: '2024-01-01',
-        source: 'USTR',
-        isActive: true,
-        notes: 'Computer - tariffa ridotta'
-      }
-    ];
-    
-    setTimeout(() => {
-      setDuties(mockDuties);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    setLoading(true);
+    setError(null);
+    getUSDuties({ search: searchTerm, section: filterSection, limit: 100 })
+      .then(res => {
+        setDuties(res.data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Errore nel caricamento dei dazi USA');
+        setLoading(false);
+      });
+  }, [searchTerm, filterSection, refresh]);
 
-  const filteredDuties = duties.filter(duty => {
-    const matchesSearch = 
-      duty.hsCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      duty.productDescription.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesSection = !filterSection || 
-      (filterSection === '301' && duty.section301Rate) ||
-      (filterSection === '232' && duty.section232Rate) ||
-      (filterSection === '201' && duty.section201Rate);
-    
-    return matchesSearch && matchesSection;
-  });
+  const filteredDuties = duties; // Filtering is now handled by API
 
   const handleEdit = (duty: USDuty) => {
     setEditingDuty(duty);
@@ -87,26 +41,36 @@ export const USDutiesManagement: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Sei sicuro di voler eliminare questo dazio USA?')) {
-      setDuties(duties.filter(d => d._id !== id));
+      setLoading(true);
+      setError(null);
+      try {
+        await deleteUSDuty(id);
+        setRefresh(r => r + 1);
+      } catch {
+        setError('Errore durante l\'eliminazione');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const handleFormSubmit = (dutyData: Partial<USDuty>) => {
-    if (editingDuty) {
-      setDuties(duties.map(d => 
-        d._id === editingDuty._id 
-          ? { ...d, ...dutyData }
-          : d
-      ));
+  const handleFormSubmit = async (dutyData: Partial<USDuty>) => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (editingDuty && editingDuty._id) {
+        await updateUSDuty(editingDuty._id, dutyData);
+      } else {
+        await createUSDuty(dutyData);
+      }
+      setShowForm(false);
       setEditingDuty(null);
-    } else {
-      const newDuty: USDuty = {
-        _id: Date.now().toString(),
-        ...dutyData as USDuty
-      };
-      setDuties([...duties, newDuty]);
+      setRefresh(r => r + 1);
+    } catch {
+      setError('Errore durante il salvataggio');
+    } finally {
+      setLoading(false);
     }
-    setShowForm(false);
   };
 
   const sections = [
@@ -142,12 +106,16 @@ export const USDutiesManagement: React.FC = () => {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => { setShowForm(true); setEditingDuty(null); }}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
         >
           ➕ Nuovo Dazio USA
         </button>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
+      )}
 
       {/* Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -209,177 +177,283 @@ export const USDutiesManagement: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ricerca
-            </label>
-            <input
-              type="text"
-              placeholder="HS Code, prodotto..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Sezione
-            </label>
-            <select
-              value={filterSection}
-              onChange={(e) => setFilterSection(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">Tutte le sezioni</option>
-              {sections.map(section => (
-                <option key={section.code} value={section.code}>{section.name}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="flex items-end">
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setFilterSection('');
-              }}
-              className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              🔄 Reset
-            </button>
-          </div>
-        </div>
+      <div className="flex flex-wrap gap-4 mb-4">
+        <input
+          type="text"
+          placeholder="Cerca per HS code o descrizione..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <select
+          value={filterSection}
+          onChange={e => setFilterSection(e.target.value)}
+          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="">Tutte le Section</option>
+          {sections.map(s => (
+            <option key={s.code} value={s.code}>{s.name}</option>
+          ))}
+        </select>
       </div>
 
       {/* Duties Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  HS Code
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Prodotto
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tariffa Base
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Section 301
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Section 232
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Section 201
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fonte
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Stato
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
-                  Azioni
-                </th>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+          <thead>
+            <tr>
+              <th className="px-4 py-2">HS Code</th>
+              <th className="px-4 py-2">Descrizione</th>
+              <th className="px-4 py-2">Base Rate</th>
+              <th className="px-4 py-2">301</th>
+              <th className="px-4 py-2">232</th>
+              <th className="px-4 py-2">201</th>
+              <th className="px-4 py-2">Fonte</th>
+              <th className="px-4 py-2">Attivo</th>
+              <th className="px-4 py-2">Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredDuties.map(duty => (
+              <tr key={duty._id} className="border-t">
+                <td className="px-4 py-2 font-mono">{duty.hsCode}</td>
+                <td className="px-4 py-2">{duty.productDescription}</td>
+                <td className="px-4 py-2">{duty.baseRate}%</td>
+                <td className="px-4 py-2">{duty.section301Rate ?? '-'}</td>
+                <td className="px-4 py-2">{duty.section232Rate ?? '-'}</td>
+                <td className="px-4 py-2">{duty.section201Rate ?? '-'}</td>
+                <td className="px-4 py-2">{sources.find(s => s.code === duty.source)?.name || duty.source}</td>
+                <td className="px-4 py-2">
+                  {duty.isActive ? <span className="text-green-600 font-bold">SI</span> : <span className="text-red-600 font-bold">NO</span>}
+                </td>
+                <td className="px-4 py-2 space-x-2">
+                  <button
+                    className="text-indigo-600 hover:underline"
+                    onClick={() => handleEdit(duty)}
+                  >Modifica</button>
+                  <button
+                    className="text-red-600 hover:underline"
+                    onClick={() => duty._id && handleDelete(duty._id)}
+                  >Elimina</button>
+                </td>
               </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredDuties.map((duty) => (
-                <tr key={duty._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {duty.hsCode}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {duty.productDescription}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {duty.baseRate}%
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {duty.section301Rate ? `${duty.section301Rate}%` : '-'}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {duty.section232Rate ? `${duty.section232Rate}%` : '-'}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {duty.section201Rate ? `${duty.section201Rate}%` : '-'}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      duty.source === 'USTR' ? 'bg-red-100 text-red-800' :
-                      duty.source === 'DOC' ? 'bg-blue-100 text-blue-800' :
-                      duty.source === 'CBP' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {duty.source}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      duty.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {duty.isActive ? 'Attiva' : 'Inattiva'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex flex-col space-y-1">
-                      <button
-                        onClick={() => handleEdit(duty)}
-                        className="text-indigo-600 hover:text-indigo-900 text-xs"
-                      >
-                        ✏️ Modifica
-                      </button>
-                      <button
-                        onClick={() => handleDelete(duty._id)}
-                        className="text-red-600 hover:text-red-900 text-xs"
-                      >
-                        🗑️ Elimina
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        {filteredDuties.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">Nessun dazio USA trovato</p>
-          </div>
-        )}
+            ))}
+            {filteredDuties.length === 0 && (
+              <tr>
+                <td colSpan={9} className="text-center py-6 text-gray-500">Nessun dazio trovato.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
-      {/* Coming Soon Notice */}
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <div className="flex items-start">
-          <div className="flex-shrink-0">
-            <span className="text-2xl">🚀</span>
+      {/* Form Modal */}
+      {showForm && (
+        <DutyForm
+          duty={editingDuty}
+          onClose={() => { setShowForm(false); setEditingDuty(null); }}
+          onSubmit={handleFormSubmit}
+          sources={sources}
+        />
+      )}
+    </div>
+  );
+};
+
+// DutyForm component (semplificato per brevità)
+interface DutyFormProps {
+  duty: USDuty | null;
+  onClose: () => void;
+  onSubmit: (data: Partial<USDuty>) => void;
+  sources: { code: string; name: string }[];
+}
+
+const DutyForm: React.FC<DutyFormProps> = ({ duty, onClose, onSubmit, sources }) => {
+  const [form, setForm] = useState<Partial<USDuty>>(duty || {
+    hsCode: '',
+    productDescription: '',
+    baseRate: 0,
+    effectiveDate: new Date().toISOString().slice(0, 10),
+    source: 'MANUAL',
+    isActive: true,
+    notes: ''
+  });
+  const [error, setError] = useState<string | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    let newValue: string | number | boolean = value;
+    if (type === 'checkbox' && 'checked' in e.target) {
+      newValue = (e.target as HTMLInputElement).checked;
+    } else if (type === 'number') {
+      newValue = parseFloat(value) || 0;
+    }
+    setForm(prev => ({
+      ...prev,
+      [name]: newValue
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.hsCode || !form.productDescription || form.baseRate === undefined) {
+      setError('HS Code, descrizione e base rate sono obbligatori');
+      return;
+    }
+    setError(null);
+    onSubmit(form);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative">
+        <button
+          className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
+          onClick={onClose}
+        >✖️</button>
+        <h3 className="text-lg font-semibold mb-4">{duty ? 'Modifica Dazio USA' : 'Nuovo Dazio USA'}</h3>
+        {error && <div className="mb-2 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium">HS Code *</label>
+            <input
+              type="text"
+              name="hsCode"
+              value={form.hsCode || ''}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            />
           </div>
-          <div className="ml-3">
-            <h3 className="text-lg font-medium text-blue-900">
-              Modulo Dazi USA in Sviluppo
-            </h3>
-            <div className="mt-2 text-sm text-blue-700">
-              <p>Questo modulo sarà presto integrato con:</p>
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>API ufficiali USTR e DOC per aggiornamenti automatici</li>
-                <li>Calcolo automatico delle tariffe Section 301, 232, 201</li>
-                <li>Gestione delle esenzioni e deroghe</li>
-                <li>Notifiche per modifiche normative</li>
-                <li>Integrazione con il calcolatore principale</li>
-              </ul>
+          <div>
+            <label className="block text-sm font-medium">Descrizione *</label>
+            <input
+              type="text"
+              name="productDescription"
+              value={form.productDescription || ''}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium">Base Rate (%) *</label>
+              <input
+                type="number"
+                name="baseRate"
+                value={form.baseRate ?? ''}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded"
+                min={0}
+                max={100}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Section 301 (%)</label>
+              <input
+                type="number"
+                name="section301Rate"
+                value={form.section301Rate ?? ''}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded"
+                min={0}
+                max={100}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Section 232 (%)</label>
+              <input
+                type="number"
+                name="section232Rate"
+                value={form.section232Rate ?? ''}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded"
+                min={0}
+                max={100}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Section 201 (%)</label>
+              <input
+                type="number"
+                name="section201Rate"
+                value={form.section201Rate ?? ''}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded"
+                min={0}
+                max={100}
+              />
             </div>
           </div>
-        </div>
+          <div>
+            <label className="block text-sm font-medium">Data Inizio *</label>
+            <input
+              type="date"
+              name="effectiveDate"
+              value={form.effectiveDate?.slice(0, 10) || ''}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Data Fine</label>
+            <input
+              type="date"
+              name="expiryDate"
+              value={form.expiryDate?.slice(0, 10) || ''}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Fonte *</label>
+            <select
+              name="source"
+              value={form.source || 'MANUAL'}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            >
+              {sources.map(s => (
+                <option key={s.code} value={s.code}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Attivo</label>
+            <input
+              type="checkbox"
+              name="isActive"
+              checked={form.isActive ?? true}
+              onChange={handleChange}
+              className="ml-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Note</label>
+            <textarea
+              name="notes"
+              value={form.notes || ''}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              rows={2}
+            />
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              type="button"
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={onClose}
+            >Annulla</button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            >Salva</button>
+          </div>
+        </form>
       </div>
     </div>
   );
