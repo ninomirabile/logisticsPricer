@@ -453,6 +453,13 @@ kubectl apply -f k8s/
 4. Push al branch (`git push origin feature/AmazingFeature`)
 5. Apri Pull Request
 
-## 📄 Licenza
+# License
 
-Questo progetto è sotto licenza MIT. Vedi `LICENSE` per dettagli.
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC-BY-NC-4.0) - see the [LICENSE](LICENSE) file for details.
+
+This license allows you to:
+- ✅ Use, modify, and distribute the software
+- ❌ Use it for commercial purposes
+- ✅ Attribute the original author
+
+For commercial use, please contact the author
