@@ -38,6 +38,9 @@ export default [
         clearTimeout: 'readonly',
         URLSearchParams: 'readonly',
         HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLSelectElement: 'readonly',
+        HTMLTextAreaElement: 'readonly',
         RequestInit: 'readonly',
         // Test globals
         describe: 'readonly',
